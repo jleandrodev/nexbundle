@@ -1,0 +1,10 @@
+api_version = "2025-01"
+
+[[extensions]]
+name = "Buy Together"
+handle = "buy-together-theme"
+uid = "2c295b03-c58b-a7d2-b665-7902424f22ebc08a87a4"
+type = "theme"
+
+# Theme App Extension: blocos arrastáveis (app blocks) para a product page.
+# Hospedada pela Shopify (shopify app deploy) — não vai para VPS.

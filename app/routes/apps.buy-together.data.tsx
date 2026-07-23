@@ -1,0 +1,66 @@
+/**
+ * App Proxy — GET /apps/buy-together/data?product_id=<gid|numeric>
+ * Retorna { enabled, config, mainProduct, companions } para o storefront.
+ *
+ * App Proxy = MESMA ORIGEM (loja.myshopify.com/apps/...): sem CORS, sem preflight,
+ * sem network_access grant, sem session token. authenticate.public.appProxy verifica
+ * a assinatura HMAC e devolve session (offline) + admin já autenticado.
+ */
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { authenticate } from "../shopify.server";
+import { getStyling } from "../services/styling.server";
+import { getRelationshipByMain } from "../services/relationships.server";
+import { enrichProducts, enrichOne } from "../services/products.server";
+
+// Normaliza product_id para gid (aceita numérico ou gid).
+function toProductGid(raw: string | null): string | null {
+  if (!raw) return null;
+  if (raw.startsWith("gid://")) return raw;
+  const m = raw.match(/(\d+)$/);
+  return m ? `gid://shopify/Product/${m[1]}` : null;
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { session, admin } = await authenticate.public.appProxy(request);
+
+  // Loja não instalada / sessão ausente -> desliga silenciosamente.
+  if (!session || !admin) return json({ enabled: false });
+
+  const url = new URL(request.url);
+  const mainProductId = toProductGid(url.searchParams.get("product_id"));
+  if (!mainProductId) return json({ enabled: false });
+
+  const [config, relationship] = await Promise.all([
+    getStyling(session.shop),
+    getRelationshipByMain(session.shop, mainProductId),
+  ]);
+
+  if (!relationship || relationship.companions.length === 0) {
+    return json({ enabled: false });
+  }
+
+  // Enriquece companheiros + produto principal numa via barata.
+  const [companions, mainProduct] = await Promise.all([
+    enrichProducts(
+      admin,
+      relationship.companions.map((c) => ({
+        productId: c.companionProductId,
+        variantId: c.companionVariantId,
+      })),
+    ),
+    enrichOne(admin, mainProductId),
+  ]);
+
+  const usable = companions.filter((c) => c.variantId && c.available);
+  if (usable.length === 0) return json({ enabled: false });
+
+  return json({
+    enabled: true,
+    mainProductId,
+    layout: relationship.layout,
+    config,
+    mainProduct,
+    companions: usable,
+  });
+}

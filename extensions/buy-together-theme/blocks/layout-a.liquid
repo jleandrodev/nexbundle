@@ -1,0 +1,34 @@
+{% comment %}
+  Buy Together — Layout A ("lado a lado")
+  Card do produto principal + card do companheiro + card lateral com a SOMA + botão.
+  Arrastável em qualquer section que suporte @app (ex.: product page do Dawn).
+  Dados e cores vêm da config global via App Proxy (buy-together.js).
+{% endcomment %}
+<div
+  class="bt-root bt-layout-a"
+  data-bt-layout="A"
+  data-bt-product-id="{{ product.id }}"
+  data-bt-variant-id="{{ product.selected_or_first_available_variant.id }}"
+  data-bt-variant-price="{{ product.selected_or_first_available_variant.price }}"
+  data-bt-money-format="{{ shop.money_format | escape }}"
+  hidden
+>
+  <div class="bt-skeleton" aria-hidden="true">{{ block.settings.loading_text }}</div>
+</div>
+
+{% schema %}
+{
+  "name": "Compre junto lado a lado",
+  "target": "section",
+  "stylesheet": "buy-together.css",
+  "javascript": "buy-together.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "Texto de carregamento",
+      "default": "Carregando sugestão..."
+    }
+  ]
+}
+{% endschema %}

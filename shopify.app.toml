@@ -1,0 +1,37 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "NexBundle"
+client_id = "b095b89486edb4b3212f323e8833dc64"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+# NÃO deixar vazio: o config:link zera isto (gotcha #8). Buy Together só lê produtos.
+scopes = "read_products"
+
+[app_proxy]
+# TUNNEL FIXO (ngrok domínio estático): configure UMA vez com o seu domínio reservado
+# e rode `npm run dev:fixed` (ver scripts/dev-fixed.sh e o README). A URL não muda mais.
+# Troque YOUR-STATIC-DOMAIN pelo domínio que você reservou em dashboard.ngrok.com/domains.
+url = "https://YOUR-STATIC-DOMAIN.ngrok-free.app/apps/buy-together"
+subpath = "buy-together"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-10"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+[auth]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true

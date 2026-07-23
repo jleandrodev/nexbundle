@@ -1,0 +1,29 @@
+node_modules
+.DS_Store
+
+/.cache
+/build
+/app/build
+/public/build/
+/public/_dev
+/app/public/build
+/prisma/dev.sqlite
+/prisma/dev.sqlite-journal
+database.sqlite
+
+.env
+.env.*
+
+# package-lock.json É versionado de propósito: o deploy na VPS usa `npm ci` (reprodutível).
+yarn.lock
+pnpm-lock.yaml
+
+# Env de produção (segredos) e logs do PM2 — nunca versionar.
+.env.production
+/logs
+
+/extensions/*/dist
+
+# Ignore shopify files created during app dev
+.shopify/*
+.shopify.lock

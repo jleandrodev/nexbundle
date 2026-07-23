@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "sqlite"
+  // Dev: file:dev.sqlite (via .env). Prod: caminho persistente FORA do dir de deploy
+  // (ex.: DATABASE_URL="file:/var/data/buy-together/prod.sqlite"). Ver deploy/DEPLOY.md.
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// -------- Buy Together --------
+// Multi-tenant: TODA tabela do app carrega `shop` e é sempre filtrada por ele.
+
+// Relacionamento "compre junto": 1 produto principal -> N companheiros (1:N).
+model Relationship {
+  id            String      @id @default(cuid())
+  shop          String
+  mainProductId String // gid://shopify/Product/123
+  enabled       Boolean     @default(true)
+  layout        String      @default("A") // A | B — layout preferido (posição real vem do theme editor)
+  companions    Companion[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([shop, mainProductId]) // 1 relacionamento por produto principal por loja
+  @@index([shop])
+}
+
+model Companion {
+  id                 String       @id @default(cuid())
+  relationshipId     String
+  relationship       Relationship @relation(fields: [relationshipId], references: [id], onDelete: Cascade)
+  companionProductId String // gid do produto companheiro
+  companionVariantId String? // opcional; senão resolve a 1ª variante disponível
+  position           Int          @default(0)
+
+  @@index([relationshipId])
+}
+
+// Config de estilo GLOBAL por loja (1 registro por shop). Defaults = comportamento seguro.
+model StylingConfig {
+  shop            String   @id
+  backgroundColor String   @default("#ffffff")
+  textColor       String   @default("#1a1a1a")
+  titleColor      String   @default("#1a1a1a")
+  buttonColor     String   @default("#000000")
+  buttonTextColor String   @default("#ffffff")
+  addButtonText   String   @default("Adicionar ambos ao carrinho")
+  titleText       String   @default("Compre junto")
+  updatedAt       DateTime @updatedAt
+}
+
+// Event log cru de métricas -> agregação por groupBy no painel.
+model MetricEvent {
+  id                 String   @id @default(cuid())
+  shop               String
+  type               String // "impression" | "click"
+  mainProductId      String
+  companionProductId String?
+  layout             String? // A | B
+  createdAt          DateTime @default(now())
+
+  @@index([shop, mainProductId, type])
+  @@index([shop, createdAt])
+}
