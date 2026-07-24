@@ -62,6 +62,7 @@ export default function CreateRelationship() {
       mode="create"
       actionError={actionData?.error}
       value={{
+        name: "",
         main: null,
         companions: [],
         template,

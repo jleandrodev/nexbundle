@@ -54,6 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({
     id: rel.id,
     value: {
+      name: rel.name,
       main,
       companions,
       template,

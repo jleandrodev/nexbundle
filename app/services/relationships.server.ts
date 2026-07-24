@@ -82,6 +82,7 @@ export async function createRelationship(
   shop: string,
   data: {
     mainProductId: string;
+    name?: string;
     template?: string;
     style?: string;
     direction?: string;
@@ -92,6 +93,7 @@ export async function createRelationship(
   return prisma.relationship.create({
     data: {
       shop,
+      name: data.name ?? "",
       mainProductId: data.mainProductId,
       template: data.template ?? "side-by-side",
       style: data.style ?? "{}",
@@ -114,6 +116,7 @@ export async function updateRelationship(
   id: string,
   data: {
     mainProductId: string;
+    name?: string;
     template?: string;
     style?: string;
     direction?: string;
@@ -129,6 +132,7 @@ export async function updateRelationship(
   return prisma.relationship.update({
     where: { id },
     data: {
+      name: data.name ?? existing.name,
       mainProductId: data.mainProductId,
       template: data.template ?? existing.template,
       style: data.style ?? existing.style,
@@ -153,6 +157,7 @@ export function parseRelationshipForm(form: FormData):
       ok: true;
       value: {
         mainProductId: string;
+        name: string;
         template: string;
         style: string;
         direction: string;
@@ -164,6 +169,7 @@ export function parseRelationshipForm(form: FormData):
   try {
     const mainRaw = String(form.get("main") || "");
     const compRaw = String(form.get("companions") || "[]");
+    const name = String(form.get("name") || "").trim();
     const template = String(form.get("template") || "side-by-side");
     const style = String(form.get("style") || "{}");
     const direction = String(form.get("direction") || "uni") === "bi" ? "bi" : "uni";
@@ -186,13 +192,26 @@ export function parseRelationshipForm(form: FormData):
     if (companions.length === 0) {
       return { ok: false, error: "Selecione ao menos um produto companheiro." };
     }
+    // Nome vazio → usa o título do produto principal como fallback.
+    const finalName = name || String(main.title || "Componente Buy Together");
     return {
       ok: true,
-      value: { mainProductId: main.productId, template, style, direction, enabled, companions },
+      value: { mainProductId: main.productId, name: finalName, template, style, direction, enabled, companions },
     };
   } catch (e) {
     return { ok: false, error: "Dados do formulário inválidos." };
   }
+}
+
+export async function setRelationshipEnabled(
+  shop: string,
+  id: string,
+  enabled: boolean,
+) {
+  const existing = await prisma.relationship.findFirst({ where: { id, shop } });
+  if (!existing) return false;
+  await prisma.relationship.update({ where: { id }, data: { enabled } });
+  return true;
 }
 
 export async function deleteRelationship(shop: string, id: string) {

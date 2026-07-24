@@ -41,6 +41,7 @@ export type PickedProduct = {
 
 export type EditorValue = {
   id?: string;
+  name: string;
   main: PickedProduct | null;
   companions: PickedProduct[];
   template: TemplateId;
@@ -87,6 +88,7 @@ export default function RelationshipEditor({
   const submit = useSubmit();
   const submitting = nav.state === "submitting";
 
+  const [name, setName] = useState(value.name || "");
   const [main, setMain] = useState<PickedProduct | null>(value.main);
   const [companions, setCompanions] = useState<PickedProduct[]>(value.companions);
   const [direction, setDirection] = useState(value.direction || "uni");
@@ -138,6 +140,7 @@ export default function RelationshipEditor({
       }
     >
       <Form method="post">
+        <input type="hidden" name="name" value={name} />
         <input type="hidden" name="main" value={JSON.stringify(main ?? "")} />
         <input type="hidden" name="companions" value={JSON.stringify(companions)} />
         <input type="hidden" name="template" value={value.template} />
@@ -183,6 +186,17 @@ export default function RelationshipEditor({
                   <Box padding="400">
                     {tab === 0 ? (
                       <BlockStack gap="400">
+                        <TextField
+                          label="Nome do componente"
+                          value={name}
+                          onChange={setName}
+                          autoComplete="off"
+                          placeholder="Ex.: Shampoo + Condicionador"
+                          helpText="Só para identificar na listagem. Se vazio, usa o nome do produto principal."
+                        />
+
+                        <Divider />
+
                         <BlockStack gap="200">
                           <Text as="h4" variant="headingSm">
                             Produto principal

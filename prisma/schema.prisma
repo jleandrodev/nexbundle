@@ -42,6 +42,7 @@ model Session {
 model Relationship {
   id            String      @id @default(cuid())
   shop          String
+  name          String      @default("") // nome do componente (facilita a listagem)
   mainProductId String // gid://shopify/Product/123
   enabled       Boolean     @default(true)
   layout        String      @default("A") // legado (A|B). Substituído por `template`.

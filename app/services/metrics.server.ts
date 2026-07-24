@@ -25,6 +25,46 @@ export async function recordEvent(shop: string, input: MetricInput) {
   });
 }
 
+/** Série diária (impressões e cliques por dia) para o gráfico. Eixo contínuo. */
+export async function getDailyMetrics(shop: string, days = 30) {
+  const now = Date.now();
+  const from = new Date(now - days * 86400000);
+  const events = await prisma.metricEvent.findMany({
+    where: { shop, createdAt: { gte: from } },
+    select: { createdAt: true, type: true },
+  });
+
+  const buckets = new Map<string, { impressions: number; clicks: number }>();
+  for (let i = days - 1; i >= 0; i--) {
+    const key = new Date(now - i * 86400000).toISOString().slice(0, 10);
+    buckets.set(key, { impressions: 0, clicks: 0 });
+  }
+  for (const e of events) {
+    const key = e.createdAt.toISOString().slice(0, 10);
+    const b = buckets.get(key);
+    if (!b) continue;
+    if (e.type === "click") b.clicks++;
+    else b.impressions++;
+  }
+  return Array.from(buckets.entries()).map(([day, v]) => ({ day, ...v }));
+}
+
+/** Últimos eventos (para a tabela de atividade). */
+export async function getRecentEvents(shop: string, limit = 12) {
+  const rows = await prisma.metricEvent.findMany({
+    where: { shop },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    type: r.type,
+    mainProductId: r.mainProductId,
+    layout: r.layout,
+    createdAt: r.createdAt.toISOString(),
+  }));
+}
+
 export type MetricsSummary = {
   impressions: number;
   clicks: number;
