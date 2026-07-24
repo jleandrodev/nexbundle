@@ -48,4 +48,6 @@ redirect_urls = [
 ]
 
 [build]
-automatically_update_urls_on_dev = true
+# false: rodar `shopify app dev` NÃO reescreve as URLs registradas (mantém a produção
+# em nexbundle.homolog.live). Ver gotcha #17.
+automatically_update_urls_on_dev = false

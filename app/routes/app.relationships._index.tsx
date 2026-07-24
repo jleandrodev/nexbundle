@@ -15,6 +15,11 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { listRelationships } from "../services/relationships.server";
+import { TEMPLATES } from "../lib/templates";
+
+const TEMPLATE_NAME: Record<string, string> = Object.fromEntries(
+  TEMPLATES.map((t) => [t.id, t.name]),
+);
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
@@ -24,7 +29,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       id: r.id,
       mainProductId: r.mainProductId,
       companions: r.companions.length,
-      layout: r.layout,
+      template: TEMPLATE_NAME[r.template] || r.template,
+      direction: r.direction,
       enabled: r.enabled,
     })),
   });
@@ -69,7 +75,8 @@ export default function RelationshipsList() {
             headings={[
               { title: "Produto principal" },
               { title: "Companheiros" },
-              { title: "Layout" },
+              { title: "Template" },
+              { title: "Direção" },
               { title: "Status" },
             ]}
           >
@@ -86,7 +93,10 @@ export default function RelationshipsList() {
                   </Text>
                 </IndexTable.Cell>
                 <IndexTable.Cell>{r.companions}</IndexTable.Cell>
-                <IndexTable.Cell>{r.layout === "A" ? "Lado a lado" : "Compacto"}</IndexTable.Cell>
+                <IndexTable.Cell>{r.template}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  {r.direction === "bi" ? "Bidirecional" : "Unidirecional"}
+                </IndexTable.Cell>
                 <IndexTable.Cell>
                   {r.enabled ? (
                     <Badge tone="success">Ativo</Badge>

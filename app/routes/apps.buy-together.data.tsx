@@ -9,9 +9,9 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-import { getStyling } from "../services/styling.server";
-import { getRelationshipByMain } from "../services/relationships.server";
+import { resolveForProduct } from "../services/relationships.server";
 import { enrichProducts, enrichOne } from "../services/products.server";
+import { parseStyle } from "../lib/templates";
 
 // Normaliza product_id para gid (aceita numérico ou gid).
 function toProductGid(raw: string | null): string | null {
@@ -31,24 +31,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const mainProductId = toProductGid(url.searchParams.get("product_id"));
   if (!mainProductId) return json({ enabled: false });
 
-  const [config, relationship] = await Promise.all([
-    getStyling(session.shop),
-    getRelationshipByMain(session.shop, mainProductId),
-  ]);
+  const resolved = await resolveForProduct(session.shop, mainProductId);
 
-  if (!relationship || relationship.companions.length === 0) {
+  if (!resolved || resolved.companions.length === 0) {
     return json({ enabled: false });
   }
 
   // Enriquece companheiros + produto principal numa via barata.
   const [companions, mainProduct] = await Promise.all([
-    enrichProducts(
-      admin,
-      relationship.companions.map((c) => ({
-        productId: c.companionProductId,
-        variantId: c.companionVariantId,
-      })),
-    ),
+    enrichProducts(admin, resolved.companions),
     enrichOne(admin, mainProductId),
   ]);
 
@@ -58,8 +49,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     enabled: true,
     mainProductId,
-    layout: relationship.layout,
-    config,
+    template: resolved.template, // side-by-side | list | compact
+    style: parseStyle(resolved.style), // estilo por componente (mesclado com defaults)
     mainProduct,
     companions: usable,
   });

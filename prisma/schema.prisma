@@ -44,7 +44,10 @@ model Relationship {
   shop          String
   mainProductId String // gid://shopify/Product/123
   enabled       Boolean     @default(true)
-  layout        String      @default("A") // A | B — layout preferido (posição real vem do theme editor)
+  layout        String      @default("A") // legado (A|B). Substituído por `template`.
+  template      String      @default("side-by-side") // side-by-side | list | compact
+  style         String      @default("{}") // JSON com ComponentStyle (cores, título, borda...)
+  direction     String      @default("uni") // uni = só no principal | bi = nos dois produtos (A<->B)
   companions    Companion[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

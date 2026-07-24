@@ -1,69 +1,82 @@
 /**
- * Criar relacionamento Buy Together.
+ * Galeria de templates. Escolher um leva ao editor daquele componente.
  */
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
-import { Page } from "@shopify/polaris";
-import { authenticate } from "../shopify.server";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import {
-  createRelationship,
-  countRelationships,
-  parseRelationshipForm,
-} from "../services/relationships.server";
-import { getEntitlement } from "../services/billing.server";
-import { isUnlimited } from "../plans";
-import RelationshipForm from "../components/RelationshipForm";
+  Page,
+  Layout,
+  Card,
+  BlockStack,
+  Text,
+  Box,
+  Button,
+} from "@shopify/polaris";
+import { authenticate } from "../shopify.server";
+import { TEMPLATES } from "../lib/templates";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
-  return json({});
+  return json({ templates: TEMPLATES });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const ctx = await authenticate.admin(request);
-  const { session } = ctx;
-  const form = await request.formData();
-  const parsed = parseRelationshipForm(form);
-  if (!parsed.ok) return json({ error: parsed.error }, { status: 400 });
+export default function TemplateGallery() {
+  const { templates } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
-  // Trava de limite do plano (nº de produtos com Buy Together).
-  const entitlement = await getEntitlement(ctx);
-  const used = await countRelationships(session.shop);
-  if (!isUnlimited(entitlement.limit) && used >= entitlement.limit) {
-    return json(
-      {
-        error: `Você atingiu o limite do seu plano (${entitlement.limit} produtos). Faça upgrade em "Planos" para adicionar mais.`,
-      },
-      { status: 400 },
-    );
-  }
-
-  try {
-    await createRelationship(session.shop, parsed.value);
-  } catch (e: any) {
-    if (String(e?.code) === "P2002") {
-      return json(
-        { error: "Já existe um relacionamento para este produto principal." },
-        { status: 400 },
-      );
-    }
-    throw e;
-  }
-  return redirect("/app/relationships");
-}
-
-export default function NewRelationship() {
-  const actionData = useActionData<typeof action>();
   return (
     <Page
-      title="Novo relacionamento"
+      title="Escolha um template"
+      subtitle="Selecione o formato do componente. Você personaliza o estilo em seguida."
       backAction={{ content: "Relacionamentos", url: "/app/relationships" }}
     >
-      <RelationshipForm
-        actionError={actionData?.error}
-        initialValue={{ main: null, companions: [], layout: "A", enabled: true }}
-      />
+      <Layout>
+        {templates.map((t) => (
+          <Layout.Section variant="oneThird" key={t.id}>
+            <Card padding="0">
+              <BlockStack gap="0">
+                {/* Imagem do template (placeholder até o usuário enviar as artes) */}
+                <div
+                  style={{
+                    aspectRatio: "16 / 10",
+                    background:
+                      "linear-gradient(135deg, #EEF1F6 0%, #E3E8F0 100%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#8C9196",
+                    fontSize: 13,
+                    borderTopLeftRadius: 12,
+                    borderTopRightRadius: 12,
+                    backgroundImage: t.image ? `url(${t.image})` : undefined,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  {t.image ? "" : "Prévia do template"}
+                </div>
+                <Box padding="400">
+                  <BlockStack gap="200">
+                    <Text as="h3" variant="headingMd">
+                      {t.name}
+                    </Text>
+                    <Text as="p" tone="subdued">
+                      {t.description}
+                    </Text>
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate(`/app/relationships/create/${t.id}`)}
+                    >
+                      Usar este template
+                    </Button>
+                  </BlockStack>
+                </Box>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        ))}
+      </Layout>
     </Page>
   );
 }

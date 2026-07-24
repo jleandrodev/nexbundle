@@ -211,8 +211,7 @@ export default function Dashboard() {
           <Card>
             <EmptyState
               heading="Crie seu primeiro relacionamento"
-              action={{ content: "Novo relacionamento", url: "/app/relationships/new" }}
-              secondaryAction={{ content: "Configurar estilo", url: "/app/styling" }}
+              action={{ content: "Criar componente", url: "/app/relationships/new" }}
               image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
             >
               <p>

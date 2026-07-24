@@ -37,11 +37,54 @@ export async function getRelationshipByMain(shop: string, mainProductId: string)
   });
 }
 
+/**
+ * Resolve o que mostrar na página de um produto (App Proxy), tratando uni/bi:
+ *  1) Se o produto é PRINCIPAL de um relacionamento ativo → mostra os companheiros dele.
+ *  2) Senão, se é COMPANHEIRO de um relacionamento BIDIRECIONAL ativo → mostra o principal.
+ * Retorna layout + a lista de produtos (gid + variante) para o proxy enriquecer.
+ */
+export async function resolveForProduct(shop: string, productId: string) {
+  const asMain = await prisma.relationship.findFirst({
+    where: { shop, mainProductId: productId, enabled: true },
+    include: { companions: { orderBy: { position: "asc" } } },
+  });
+  if (asMain && asMain.companions.length > 0) {
+    return {
+      template: asMain.template,
+      style: asMain.style,
+      companions: asMain.companions.map((c) => ({
+        productId: c.companionProductId,
+        variantId: c.companionVariantId,
+      })),
+    };
+  }
+
+  const asCompanion = await prisma.relationship.findFirst({
+    where: {
+      shop,
+      enabled: true,
+      direction: "bi",
+      companions: { some: { companionProductId: productId } },
+    },
+  });
+  if (asCompanion) {
+    return {
+      template: asCompanion.template,
+      style: asCompanion.style,
+      companions: [{ productId: asCompanion.mainProductId, variantId: null }],
+    };
+  }
+
+  return null;
+}
+
 export async function createRelationship(
   shop: string,
   data: {
     mainProductId: string;
-    layout?: string;
+    template?: string;
+    style?: string;
+    direction?: string;
     enabled?: boolean;
     companions: CompanionInput[];
   },
@@ -50,7 +93,9 @@ export async function createRelationship(
     data: {
       shop,
       mainProductId: data.mainProductId,
-      layout: data.layout ?? "A",
+      template: data.template ?? "side-by-side",
+      style: data.style ?? "{}",
+      direction: data.direction ?? "uni",
       enabled: data.enabled ?? true,
       companions: {
         create: data.companions.map((c, i) => ({
@@ -69,7 +114,9 @@ export async function updateRelationship(
   id: string,
   data: {
     mainProductId: string;
-    layout?: string;
+    template?: string;
+    style?: string;
+    direction?: string;
     enabled?: boolean;
     companions: CompanionInput[];
   },
@@ -83,7 +130,9 @@ export async function updateRelationship(
     where: { id },
     data: {
       mainProductId: data.mainProductId,
-      layout: data.layout ?? existing.layout,
+      template: data.template ?? existing.template,
+      style: data.style ?? existing.style,
+      direction: data.direction ?? existing.direction,
       enabled: data.enabled ?? existing.enabled,
       companions: {
         deleteMany: {},
@@ -104,7 +153,9 @@ export function parseRelationshipForm(form: FormData):
       ok: true;
       value: {
         mainProductId: string;
-        layout: string;
+        template: string;
+        style: string;
+        direction: string;
         enabled: boolean;
         companions: CompanionInput[];
       };
@@ -113,7 +164,9 @@ export function parseRelationshipForm(form: FormData):
   try {
     const mainRaw = String(form.get("main") || "");
     const compRaw = String(form.get("companions") || "[]");
-    const layout = String(form.get("layout") || "A");
+    const template = String(form.get("template") || "side-by-side");
+    const style = String(form.get("style") || "{}");
+    const direction = String(form.get("direction") || "uni") === "bi" ? "bi" : "uni";
     const enabled = String(form.get("enabled") || "1") === "1";
 
     const main = mainRaw && mainRaw !== '""' ? JSON.parse(mainRaw) : null;
@@ -135,7 +188,7 @@ export function parseRelationshipForm(form: FormData):
     }
     return {
       ok: true,
-      value: { mainProductId: main.productId, layout, enabled, companions },
+      value: { mainProductId: main.productId, template, style, direction, enabled, companions },
     };
   } catch (e) {
     return { ok: false, error: "Dados do formulário inválidos." };

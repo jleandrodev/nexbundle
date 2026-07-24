@@ -1,10 +1,9 @@
 /**
- * Editar / excluir relacionamento Buy Together.
+ * Editar / excluir um componente Buy Together (usa o editor com preview + abas).
  */
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useSubmit } from "@remix-run/react";
-import { Page, Button } from "@shopify/polaris";
+import { useActionData, useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import {
   getRelationship,
@@ -13,9 +12,10 @@ import {
   parseRelationshipForm,
 } from "../services/relationships.server";
 import { enrichProducts, enrichOne } from "../services/products.server";
-import RelationshipForm, {
+import { parseStyle, isTemplateId, type TemplateId } from "../lib/templates";
+import RelationshipEditor, {
   type PickedProduct,
-} from "../components/RelationshipForm";
+} from "../components/RelationshipEditor";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { session, admin } = await authenticate.admin(request);
@@ -33,19 +33,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
   ]);
 
-  const main: PickedProduct | null = mainEnriched
-    ? {
-        productId: mainEnriched.productId,
-        variantId: null,
-        title: mainEnriched.title,
-        image: mainEnriched.image,
-      }
-    : {
-        productId: rel.mainProductId,
-        title: rel.mainProductId,
-        image: null,
-      };
-
+  const main: PickedProduct = {
+    productId: rel.mainProductId,
+    variantId: null,
+    title: mainEnriched?.title || rel.mainProductId,
+    image: mainEnriched?.image || null,
+  };
   const companions: PickedProduct[] = rel.companions.map((c) => {
     const e = companionsEnriched.find((x) => x.productId === c.companionProductId);
     return {
@@ -56,9 +49,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     };
   });
 
+  const template = (isTemplateId(rel.template) ? rel.template : "side-by-side") as TemplateId;
+
   return json({
     id: rel.id,
-    value: { main, companions, layout: rel.layout, enabled: rel.enabled },
+    value: {
+      main,
+      companions,
+      template,
+      direction: rel.direction,
+      enabled: rel.enabled,
+      style: parseStyle(rel.style),
+    },
   });
 }
 
@@ -80,7 +82,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   } catch (e: any) {
     if (String(e?.code) === "P2002") {
       return json(
-        { error: "Já existe um relacionamento para este produto principal." },
+        { error: "Já existe um componente para este produto principal." },
         { status: 400 },
       );
     }
@@ -92,29 +94,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function EditRelationship() {
   const { id, value } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const submit = useSubmit();
-
-  const onDelete = () => {
-    if (confirm("Excluir este relacionamento? Esta ação não pode ser desfeita.")) {
-      submit({ intent: "delete" }, { method: "post" });
-    }
-  };
-
   return (
-    <Page
-      title="Editar relacionamento"
-      backAction={{ content: "Relacionamentos", url: "/app/relationships" }}
-      secondaryActions={
-        <Button tone="critical" variant="tertiary" onClick={onDelete}>
-          Excluir
-        </Button>
-      }
-    >
-      <RelationshipForm
-        key={id}
-        actionError={actionData?.error}
-        initialValue={{ id, ...value }}
-      />
-    </Page>
+    <RelationshipEditor
+      key={id}
+      mode="edit"
+      actionError={actionData?.error}
+      value={{ id, ...value }}
+    />
   );
 }

@@ -34,7 +34,6 @@ export default function App() {
           Dashboard
         </Link>
         <Link to="/app/relationships">Relacionamentos</Link>
-        <Link to="/app/styling">Estilo</Link>
         <Link to="/app/plans">Planos</Link>
       </NavMenu>
       <Outlet />
