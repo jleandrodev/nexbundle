@@ -2,7 +2,7 @@
 
 name = "NexBundle"
 client_id = "b095b89486edb4b3212f323e8833dc64"
-application_url = "https://shopify.dev/apps/default-app-home"
+application_url = "https://nexbundle.homolog.live"
 embedded = true
 
 [access_scopes]
@@ -11,10 +11,8 @@ embedded = true
 scopes = "read_products"
 
 [app_proxy]
-# TUNNEL FIXO (ngrok domínio estático): configure UMA vez com o seu domínio reservado
-# e rode `npm run dev:fixed` (ver scripts/dev-fixed.sh e o README). A URL não muda mais.
-# Troque YOUR-STATIC-DOMAIN pelo domínio que você reservou em dashboard.ngrok.com/domains.
-url = "https://YOUR-STATIC-DOMAIN.ngrok-free.app/apps/buy-together"
+# Produção na VPS (domínio fixo). O storefront chama nexbundle.homolog.live/apps/buy-together.
+url = "https://nexbundle.homolog.live/apps/buy-together"
 subpath = "buy-together"
 prefix = "apps"
 
@@ -29,9 +27,25 @@ api_version = "2026-10"
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
+  # Compliance GDPR (obrigatórios p/ App Store, mesmo sem coletar PII).
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  compliance_topics = [ "customers/data_request" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  compliance_topics = [ "customers/redact" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  compliance_topics = [ "shop/redact" ]
+
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [
+  "https://nexbundle.homolog.live/auth/callback",
+  "https://nexbundle.homolog.live/auth/shopify/callback",
+  "https://nexbundle.homolog.live/api/auth/callback",
+]
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true

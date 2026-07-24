@@ -22,17 +22,46 @@ import {
 } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { getMetrics } from "../services/metrics.server";
-import { listRelationships } from "../services/relationships.server";
+import {
+  listRelationships,
+  countRelationships,
+} from "../services/relationships.server";
+import { getEntitlement } from "../services/billing.server";
+import { isUnlimited } from "../plans";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const ctx = await authenticate.admin(request);
+  const { session } = ctx;
   const url = new URL(request.url);
   const days = url.searchParams.get("days") === "7" ? 7 : 30;
-  const [metrics, relationships] = await Promise.all([
+  const [metrics, relationships, entitlement, used] = await Promise.all([
     getMetrics(session.shop, days),
     listRelationships(session.shop),
+    getEntitlement(ctx),
+    countRelationships(session.shop),
   ]);
-  return json({ metrics, days, hasRelationships: relationships.length > 0 });
+
+  // Deep links do theme editor: inserem o bloco direto no template de produto.
+  // addAppBlockId = {client_id}/{handle do arquivo .liquid}. Usa /themes/current.
+  const apiKey = process.env.SHOPIFY_API_KEY || "";
+  const editorBase = `https://${session.shop}/admin/themes/current/editor`;
+  const themeLinks = {
+    // Layout A (lado a lado) numa seção própria; Layout B (compacto) na seção principal.
+    layoutA: `${editorBase}?template=product&addAppBlockId=${apiKey}/layout-a&target=newAppsSection`,
+    layoutB: `${editorBase}?template=product&addAppBlockId=${apiKey}/layout-b&target=mainSection`,
+  };
+
+  return json({
+    metrics,
+    days,
+    hasRelationships: relationships.length > 0,
+    plan: entitlement.plan,
+    isDev: entitlement.isDev,
+    limit: entitlement.limit,
+    unlimited: isUnlimited(entitlement.limit),
+    used,
+    themeLinks,
+  });
 }
 
 function pct(n: number) {
@@ -60,8 +89,22 @@ function StatTile({ label, value }: { label: string; value: string }) {
 }
 
 export default function Dashboard() {
-  const { metrics, days, hasRelationships } = useLoaderData<typeof loader>();
+  const {
+    metrics,
+    days,
+    hasRelationships,
+    plan,
+    isDev,
+    limit,
+    unlimited,
+    used,
+    themeLinks,
+  } = useLoaderData<typeof loader>();
   const [, setSearchParams] = useSearchParams();
+
+  const planLabel = isDev ? "Desenvolvimento (grátis)" : plan ?? "Sem plano";
+  const usageLabel = unlimited ? "ilimitado" : `${used} / ${limit} produtos`;
+  const nearLimit = !unlimited && !isDev && limit > 0 && used / limit >= 0.8;
 
   const productRows = useMemo(
     () =>
@@ -95,6 +138,55 @@ export default function Dashboard() {
       }}
     >
       <BlockStack gap="500">
+        <Card>
+          <InlineStack align="space-between" blockAlign="center" gap="300" wrap={false}>
+            <BlockStack gap="100">
+              <InlineStack gap="200" blockAlign="center">
+                <Text as="span" variant="headingSm">
+                  Plano {planLabel}
+                </Text>
+                {isDev ? <Badge tone="info">Dev store</Badge> : null}
+                {nearLimit ? <Badge tone="warning">Perto do limite</Badge> : null}
+              </InlineStack>
+              <Text as="span" tone="subdued" variant="bodySm">
+                Produtos com Buy Together: {usageLabel}
+              </Text>
+            </BlockStack>
+            {!isDev ? (
+              <Button url="/app/plans" variant={nearLimit ? "primary" : "secondary"}>
+                {plan ? "Mudar plano" : "Escolher plano"}
+              </Button>
+            ) : null}
+          </InlineStack>
+        </Card>
+
+        <Card>
+          <BlockStack gap="300">
+            <BlockStack gap="100">
+              <Text as="h3" variant="headingMd">
+                Ative o Buy Together no seu tema
+              </Text>
+              <Text as="p" tone="subdued">
+                O widget não aparece na loja sozinho: adicione o bloco à página de
+                produto pelo editor de tema. Escolha o layout — abre o editor com o
+                bloco já inserido; depois é só posicionar e <b>Salvar</b>.
+              </Text>
+            </BlockStack>
+            <InlineStack gap="300" wrap>
+              <Button url={themeLinks.layoutA} target="_blank" variant="primary">
+                Adicionar “lado a lado”
+              </Button>
+              <Button url={themeLinks.layoutB} target="_blank">
+                Adicionar “compacto” (perto do comprar)
+              </Button>
+            </InlineStack>
+            <Text as="span" tone="subdued" variant="bodySm">
+              Abre numa nova aba, no tema publicado. Você pode arrastar o bloco para
+              qualquer posição da página.
+            </Text>
+          </BlockStack>
+        </Card>
+
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingMd">
             Últimos {days} dias

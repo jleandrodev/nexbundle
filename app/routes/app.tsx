@@ -1,4 +1,5 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
@@ -6,13 +7,21 @@ import { NavMenu } from "@shopify/app-bridge-react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
+import { getEntitlement } from "../services/billing.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const ctx = await authenticate.admin(request);
+  const entitlement = await getEntitlement(ctx);
 
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  // Loja real sem assinatura → manda escolher um plano (exceto já na própria página).
+  const pathname = new URL(request.url).pathname;
+  if (!entitlement.subscribed && !pathname.startsWith("/app/plans")) {
+    throw redirect("/app/plans");
+  }
+
+  return { apiKey: process.env.SHOPIFY_API_KEY || "", entitlement };
 };
 
 export default function App() {
@@ -26,6 +35,7 @@ export default function App() {
         </Link>
         <Link to="/app/relationships">Relacionamentos</Link>
         <Link to="/app/styling">Estilo</Link>
+        <Link to="/app/plans">Planos</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

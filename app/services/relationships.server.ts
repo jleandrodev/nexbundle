@@ -9,6 +9,11 @@ export type CompanionInput = {
   companionVariantId?: string | null; // gid opcional
 };
 
+/** Nº de relacionamentos (produtos principais) da loja — usado para o limite do plano. */
+export async function countRelationships(shop: string) {
+  return prisma.relationship.count({ where: { shop } });
+}
+
 export async function listRelationships(shop: string) {
   return prisma.relationship.findMany({
     where: { shop },

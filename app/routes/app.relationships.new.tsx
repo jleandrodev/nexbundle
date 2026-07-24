@@ -8,8 +8,11 @@ import { Page } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import {
   createRelationship,
+  countRelationships,
   parseRelationshipForm,
 } from "../services/relationships.server";
+import { getEntitlement } from "../services/billing.server";
+import { isUnlimited } from "../plans";
 import RelationshipForm from "../components/RelationshipForm";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -18,10 +21,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const ctx = await authenticate.admin(request);
+  const { session } = ctx;
   const form = await request.formData();
   const parsed = parseRelationshipForm(form);
   if (!parsed.ok) return json({ error: parsed.error }, { status: 400 });
+
+  // Trava de limite do plano (nº de produtos com Buy Together).
+  const entitlement = await getEntitlement(ctx);
+  const used = await countRelationships(session.shop);
+  if (!isUnlimited(entitlement.limit) && used >= entitlement.limit) {
+    return json(
+      {
+        error: `Você atingiu o limite do seu plano (${entitlement.limit} produtos). Faça upgrade em "Planos" para adicionar mais.`,
+      },
+      { status: 400 },
+    );
+  }
 
   try {
     await createRelationship(session.shop, parsed.value);
