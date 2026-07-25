@@ -5,10 +5,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { useLoaderData, useRevalidator, useSubmit } from "@remix-run/react";
 import { Page, Card } from "@shopify/polaris";
 import { requireStaff } from "../support-auth.server";
-import { listMessages, postMessage, markRead } from "../services/support.server";
+import {
+  listMessages,
+  postMessage,
+  markRead,
+  closeTicket,
+} from "../services/support.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await requireStaff(request);
@@ -20,6 +25,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     messages: messages.map((m) => ({
       id: m.id,
       sender: m.sender,
+      automated: m.automated,
       body: m.body,
       createdAt: m.createdAt.toISOString(),
       attachments: m.attachments,
@@ -31,6 +37,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const staff = await requireStaff(request);
   const shop = params.shop!;
   const form = await request.formData();
+
+  if (form.get("intent") === "close") {
+    await closeTicket(shop);
+    return json({ ok: true, closed: true });
+  }
+
   const body = String(form.get("body") || "").trim();
   const attachmentIds = String(form.get("attachmentIds") || "")
     .split(",")
@@ -54,6 +66,7 @@ const BRAND = "#5C6AC4";
 export default function SupportConversation() {
   const { shop, messages } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const submit = useSubmit();
   const [text, setText] = useState("");
   const [pending, setPending] = useState<{ id: string; name: string; mime: string }[]>([]);
   const [sending, setSending] = useState(false);
@@ -97,8 +110,26 @@ export default function SupportConversation() {
     }
   };
 
+  const closeTicket = () => {
+    if (
+      confirm(
+        "Encerrar este ticket? A conversa atual é limpa (as mensagens ficam salvas) e o lojista recebe a mensagem automática de novo no próximo contato.",
+      )
+    ) {
+      submit({ intent: "close" }, { method: "post" });
+    }
+  };
+
   return (
-    <Page title={shop} backAction={{ content: "Conversas", url: "/support" }}>
+    <Page
+      title={shop}
+      backAction={{ content: "Conversas", url: "/support" }}
+      secondaryActions={
+        messages.length
+          ? [{ content: "Encerrar ticket", destructive: true, onAction: closeTicket }]
+          : undefined
+      }
+    >
       <Card padding="0">
         <div ref={listRef} style={{ height: 480, overflowY: "auto", padding: 16, background: "#F7F7FB" }}>
           {messages.length === 0 ? (

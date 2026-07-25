@@ -10,17 +10,49 @@ import {
   Card,
   BlockStack,
   InlineStack,
+  InlineGrid,
   Text,
   Badge,
   Box,
   EmptyState,
 } from "@shopify/polaris";
 import { requireStaff } from "../support-auth.server";
-import { listConversations } from "../services/support.server";
+import {
+  listConversations,
+  getTicketMetrics,
+} from "../services/support.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireStaff(request);
-  return json({ conversations: await listConversations() });
+  const [conversations, metrics] = await Promise.all([
+    listConversations(),
+    getTicketMetrics(),
+  ]);
+  return json({ conversations, metrics });
+}
+
+const STATE_BADGE: Record<
+  string,
+  { tone: "attention" | "info" | "success"; label: string }
+> = {
+  waiting: { tone: "attention", label: "Aguardando" },
+  active: { tone: "info", label: "Em andamento" },
+  closed: { tone: "success", label: "Finalizado" },
+};
+
+function MetricCard({ label, value }: { label: string; value: number }) {
+  return (
+    <Card>
+      <BlockStack gap="100">
+        <Text as="span" tone="subdued" variant="bodySm">
+          {label}
+        </Text>
+        <Text as="p" variant="heading2xl">
+          {String(value)}
+        </Text>
+      </BlockStack>
+    </Card>
+  );
 }
 
 function timeAgo(iso: string) {
@@ -33,7 +65,7 @@ function timeAgo(iso: string) {
 }
 
 export default function SupportInbox() {
-  const { conversations } = useLoaderData<typeof loader>();
+  const { conversations, metrics } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
 
   useEffect(() => {
@@ -43,6 +75,14 @@ export default function SupportInbox() {
 
   return (
     <Page title="Conversas">
+      <Box paddingBlockEnd="400">
+        <InlineGrid columns={{ xs: 2, sm: 4 }} gap="300">
+          <MetricCard label="Total de tickets" value={metrics.total} />
+          <MetricCard label="Aguardando" value={metrics.waiting} />
+          <MetricCard label="Em andamento" value={metrics.active} />
+          <MetricCard label="Finalizados" value={metrics.closed} />
+        </InlineGrid>
+      </Box>
       {conversations.length === 0 ? (
         <Card>
           <EmptyState heading="Nenhuma conversa ainda" image="">
@@ -70,6 +110,9 @@ export default function SupportInbox() {
                         <Text as="span" fontWeight="semibold">
                           {c.shop}
                         </Text>
+                        <Badge tone={STATE_BADGE[c.state]?.tone}>
+                          {STATE_BADGE[c.state]?.label ?? c.state}
+                        </Badge>
                         {c.unread > 0 ? <Badge tone="critical">{String(c.unread)}</Badge> : null}
                       </InlineStack>
                       <Text as="span" tone="subdued" variant="bodySm">

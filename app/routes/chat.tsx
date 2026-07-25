@@ -10,12 +10,14 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
+import { i18n } from "../i18n/i18next.server";
 import {
   listMessages,
   postMessage,
   markRead,
   unreadForMerchant,
   getOrCreateConversation,
+  countMessagesSinceReset,
 } from "../services/support.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -55,11 +57,27 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ error: "Mensagem vazia." }, { status: 400 });
   }
 
+  await getOrCreateConversation(session.shop);
+  // 1º contato do ticket = ainda não há mensagens desde o último encerramento.
+  const isFirstContact = (await countMessagesSinceReset(session.shop)) === 0;
+
   await postMessage({
     shop: session.shop,
     sender: "merchant",
     body: body || "(anexo)",
     attachmentIds,
   });
+
+  // Resposta automática, no idioma do painel do lojista.
+  if (isFirstContact) {
+    const t = await i18n.getFixedT(request, "support");
+    await postMessage({
+      shop: session.shop,
+      sender: "staff",
+      automated: true,
+      body: t("autoReply"),
+    });
+  }
+
   return json({ ok: true });
 }

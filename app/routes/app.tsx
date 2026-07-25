@@ -54,7 +54,9 @@ export default function App() {
         <Link to="/app/analytics">{t("analytics")}</Link>
         <Link to="/app/plans">{t("plans")}</Link>
       </NavMenu>
-      <Outlet />
+      <div style={{ paddingBlockEnd: 80 }}>
+        <Outlet />
+      </div>
       <SupportChat />
     </AppProvider>
   );
