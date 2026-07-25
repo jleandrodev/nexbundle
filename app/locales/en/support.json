@@ -9,5 +9,6 @@
   "uploadFailed": "Upload failed",
   "uploadNoFile": "No file was sent.",
   "uploadBadType": "File type not allowed.",
-  "uploadTooLarge": "File too large (max. 10MB)."
+  "uploadTooLarge": "File too large (max. 10MB).",
+  "autoReply": "Hi! 👋 This is NexBundle support. Tell us, in as much detail as you can, what you need — the more information, the faster we can help. Someone from our team will reply right here as soon as possible."
 }

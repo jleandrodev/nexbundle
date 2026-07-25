@@ -112,6 +112,10 @@ model Conversation {
   merchantLastReadAt DateTime?
   staffLastReadAt   DateTime?
   assignedStaffId   String?
+  // Marco do ticket atual. Ao encerrar um ticket, resetAt = now: as mensagens
+  // anteriores ficam salvas no banco, mas somem da conversa ativa (lojista e equipe),
+  // e o próximo contato do lojista dispara a mensagem automática de novo.
+  resetAt           DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -123,6 +127,7 @@ model SupportMessage {
   shop        String
   sender      String // "merchant" | "staff"
   staffUserId String?
+  automated   Boolean             @default(false) // true = mensagem automática (não é resposta humana)
   body        String
   attachments SupportAttachment[]
   createdAt   DateTime            @default(now())
