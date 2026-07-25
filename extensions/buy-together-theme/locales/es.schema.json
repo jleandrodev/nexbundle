@@ -1,7 +1,7 @@
 {
   "buy_together": {
-    "layout_a_name": "Compra junto lado a lado",
-    "layout_b_name": "Compra junto compacto",
+    "layout_a_name": "NexBundle — Lado a lado",
+    "layout_b_name": "NexBundle — Compacto",
     "loading_label": "Texto de carga",
     "loading_info": "Se muestra mientras carga la sugerencia. Déjalo vacío para usar la traducción automática."
   }

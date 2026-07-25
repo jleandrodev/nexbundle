@@ -2,7 +2,7 @@
 
 name = "NexBundle"
 client_id = "b095b89486edb4b3212f323e8833dc64"
-application_url = "https://nexbundle.homolog.live"
+application_url = "https://nexbundle.sprezzia.live"
 embedded = true
 
 [access_scopes]
@@ -11,8 +11,8 @@ embedded = true
 scopes = "read_products"
 
 [app_proxy]
-# Produção na VPS (domínio fixo). O storefront chama nexbundle.homolog.live/apps/buy-together.
-url = "https://nexbundle.homolog.live/apps/buy-together"
+# Produção na VPS (domínio fixo). O storefront chama nexbundle.sprezzia.live/apps/buy-together.
+url = "https://nexbundle.sprezzia.live/apps/buy-together"
 subpath = "buy-together"
 prefix = "apps"
 
@@ -42,12 +42,12 @@ api_version = "2026-10"
 
 [auth]
 redirect_urls = [
-  "https://nexbundle.homolog.live/auth/callback",
-  "https://nexbundle.homolog.live/auth/shopify/callback",
-  "https://nexbundle.homolog.live/api/auth/callback",
+  "https://nexbundle.sprezzia.live/auth/callback",
+  "https://nexbundle.sprezzia.live/auth/shopify/callback",
+  "https://nexbundle.sprezzia.live/api/auth/callback",
 ]
 
 [build]
 # false: rodar `shopify app dev` NÃO reescreve as URLs registradas (mantém a produção
-# em nexbundle.homolog.live). Ver gotcha #17.
+# em nexbundle.sprezzia.live). Ver gotcha #17.
 automatically_update_urls_on_dev = false
