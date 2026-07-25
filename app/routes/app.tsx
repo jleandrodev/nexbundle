@@ -8,6 +8,7 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
 import { getEntitlement } from "../services/billing.server";
+import SupportChat from "../components/SupportChat";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -38,6 +39,7 @@ export default function App() {
         <Link to="/app/plans">Planos</Link>
       </NavMenu>
       <Outlet />
+      <SupportChat />
     </AppProvider>
   );
 }

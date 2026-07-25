@@ -16,8 +16,8 @@ App Proxy /apps/buy-together/*   ─┘
 sudo apt-get update && sudo apt-get install -y nginx
 npm i -g pm2
 
-# DB persistente FORA do diretório de deploy
-sudo mkdir -p /var/data/buy-together
+# DB + anexos do chat persistentes FORA do diretório de deploy
+sudo mkdir -p /var/data/buy-together/uploads
 sudo chown -R $USER:$USER /var/data/buy-together
 ```
 
@@ -74,6 +74,24 @@ No seu PC: commit + push. Na VPS:
 ./scripts/deploy.sh     # git pull + npm ci + prisma migrate deploy + build + pm2 reload
 ```
 Mudou a **extensão** (blocks/js/css)? Rode `npm run deploy` do PC (vai pra Shopify, não pra VPS).
+
+## Suporte / chat (front da equipe em /support)
+
+O mesmo app serve o chat do lojista (widget no painel) e o **front de atendimento**
+em `https://nexbundle.homolog.live/support` (login próprio da equipe).
+
+1. No `.env.production`, defina `SUPPORT_SESSION_SECRET` (string aleatória longa) e
+   `UPLOAD_DIR=/var/data/buy-together/uploads` (ver `env.production.example`).
+2. Crie um atendente (roda com as envs carregadas):
+   ```bash
+   set -a; source .env.production; set +a
+   npm run staff:add -- voce@n1.ag "Seu Nome" "uma-senha-forte"
+   ```
+   (Rode de novo para adicionar outros atendentes ou trocar a senha de um e-mail.)
+3. Acesse `https://nexbundle.homolog.live/support` → login → conversas.
+
+> Anexos ficam em `UPLOAD_DIR` (persistente). Servidos só por rota autenticada
+> (lojista: mesma loja; equipe: cookie de staff). Inclua o `UPLOAD_DIR` no backup.
 
 ## Backup do SQLite (recomendado)
 ```bash

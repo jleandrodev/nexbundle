@@ -5,6 +5,7 @@
     "build": "remix vite:build",
     "dev": "shopify app dev",
     "dev:fixed": "bash scripts/dev-fixed.sh",
+    "staff:add": "node scripts/staff.mjs",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",

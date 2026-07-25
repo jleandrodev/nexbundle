@@ -94,3 +94,55 @@ model MetricEvent {
   @@index([shop, mainProductId, type])
   @@index([shop, createdAt])
 }
+
+// -------- Suporte / Chat --------
+// Conversa contínua por loja (1 thread por shop). Não-lidas derivadas dos *LastReadAt.
+model Conversation {
+  id                String    @id @default(cuid())
+  shop              String    @unique
+  status            String    @default("open") // open | closed
+  lastMessageAt     DateTime  @default(now())
+  merchantLastReadAt DateTime?
+  staffLastReadAt   DateTime?
+  assignedStaffId   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([lastMessageAt])
+}
+
+model SupportMessage {
+  id          String              @id @default(cuid())
+  shop        String
+  sender      String // "merchant" | "staff"
+  staffUserId String?
+  body        String
+  attachments SupportAttachment[]
+  createdAt   DateTime            @default(now())
+
+  @@index([shop, createdAt])
+}
+
+model SupportAttachment {
+  id        String          @id @default(cuid())
+  shop      String
+  messageId String?
+  message   SupportMessage? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  name      String
+  mime      String
+  size      Int
+  path      String // caminho no disco (UPLOAD_DIR/<id>)
+  createdAt DateTime        @default(now())
+
+  @@index([shop])
+  @@index([messageId])
+}
+
+// Equipe de atendimento (global — não é por loja).
+model StaffUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
