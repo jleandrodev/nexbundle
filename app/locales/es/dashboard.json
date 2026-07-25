@@ -1,0 +1,58 @@
+{
+  "title": "Panel",
+  "planDevelopment": "Desarrollo (gratis)",
+  "planNone": "Sin plan",
+  "usageUnlimited": "Ilimitado",
+  "usage": "{{used}} / {{limit}} productos",
+  "status": {
+    "heading": "Estado de Buy Together",
+    "active": "Activo",
+    "noComponents": "Sin componentes",
+    "configured": "Tus componentes de compra conjunta están configurados. Verifica que el bloque esté en el tema.",
+    "empty": "Crea tu primer componente para empezar a sugerir productos juntos."
+  },
+  "plan": {
+    "heading": "Plan {{plan}}",
+    "devStore": "Tienda de desarrollo",
+    "nearLimit": "Cerca del límite",
+    "change": "Cambiar",
+    "choose": "Elegir",
+    "usage": "Productos con Buy Together: {{usage}}"
+  },
+  "kpis": {
+    "overview": "Resumen · últimos {{days}} días",
+    "days7": "7 días",
+    "days30": "30 días",
+    "impressions": "Impresiones",
+    "clicks": "Clics (añadir al carrito)",
+    "ctr": "CTR"
+  },
+  "guide": {
+    "heading": "Guía de inicio",
+    "progress": "{{done}}/{{total}} completados",
+    "stepPlan": "Elegir un plan",
+    "stepComponent": "Crear un componente",
+    "stepTheme": "Activar el bloque en el tema",
+    "choosePlan": "Elegir plan",
+    "createComponent": "Crear componente"
+  },
+  "theme": {
+    "heading": "Activa Buy Together en tu tema",
+    "body": "El widget no aparece solo: añade el bloque a la página de producto desde el editor de temas. Elige dónde va — abre el editor con el bloque ya insertado; luego solo posiciónalo y <bold>Guarda</bold>.",
+    "addSection": "Añadir en su propia sección",
+    "addInline": "Añadir junto al producto"
+  },
+  "metrics": {
+    "emptyHeading": "Crea tu primer componente",
+    "emptyBody": "Vincula un producto principal a productos que combinan. Luego añade el bloque “Buy Together” en la página de producto desde el editor de temas.",
+    "byTemplate": "Por plantilla",
+    "byProduct": "Por producto",
+    "noEvents": "Aún no hay eventos en este período.",
+    "noEventsAlt": "Aún no hay eventos en este período.",
+    "colTemplate": "Plantilla",
+    "colProduct": "Producto",
+    "colImpressions": "Impresiones",
+    "colClicks": "Clics",
+    "colCtr": "CTR"
+  }
+}

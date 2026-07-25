@@ -5,6 +5,7 @@
  * via fetch (com token) e abertos como blob — <img src> não carregaria o token.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Attachment = { id: string; name: string; mime: string; size: number };
 type Message = {
@@ -18,6 +19,7 @@ type Message = {
 const BRAND = "#5C6AC4";
 
 export default function SupportChat() {
+  const { t } = useTranslation("support");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [unread, setUnread] = useState(0);
@@ -69,9 +71,9 @@ export default function SupportChat() {
         const r = await fetch("/chat-upload", { method: "POST", body: fd });
         const a = await r.json();
         if (r.ok) setPending((p) => [...p, a]);
-        else alert(a.error || "Falha no upload");
+        else alert(a.error || t("uploadFailed"));
       } catch {
-        alert("Falha no upload");
+        alert(t("uploadFailed"));
       }
     }
     e.target.value = "";
@@ -110,7 +112,7 @@ export default function SupportChat() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Suporte"
+        aria-label={t("ariaLabel")}
         style={{
           position: "fixed",
           right: 20,
@@ -172,14 +174,14 @@ export default function SupportChat() {
           }}
         >
           <div style={{ background: BRAND, color: "#fff", padding: "14px 16px" }}>
-            <div style={{ fontWeight: 700 }}>Suporte NexBundle</div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>Respondemos por aqui — fale com a gente.</div>
+            <div style={{ fontWeight: 700 }}>{t("headerTitle")}</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>{t("subtitle")}</div>
           </div>
 
           <div ref={listRef} style={{ flex: 1, overflowY: "auto", padding: 14, background: "#F7F7FB" }}>
             {messages.length === 0 ? (
               <p style={{ color: "#8A8A99", fontSize: 13, textAlign: "center", marginTop: 24 }}>
-                Comece uma conversa — tire dúvidas ou relate um problema.
+                {t("emptyState")}
               </p>
             ) : (
               messages.map((m) => {
@@ -240,7 +242,7 @@ export default function SupportChat() {
           ) : null}
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 10, borderTop: "1px solid #EEE" }}>
-            <label style={{ cursor: "pointer", fontSize: 20, padding: "0 4px" }} title="Anexar">
+            <label style={{ cursor: "pointer", fontSize: 20, padding: "0 4px" }} title={t("attach")}>
               📎
               <input type="file" multiple onChange={onFiles} style={{ display: "none" }} accept="image/*,application/pdf" />
             </label>
@@ -248,7 +250,7 @@ export default function SupportChat() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              placeholder="Escreva sua mensagem..."
+              placeholder={t("inputPlaceholder")}
               style={{ flex: 1, border: "1px solid #DDD", borderRadius: 20, padding: "8px 14px", fontSize: 14, outline: "none" }}
             />
             <button
@@ -257,7 +259,7 @@ export default function SupportChat() {
               disabled={sending}
               style={{ background: BRAND, color: "#fff", border: "none", borderRadius: 20, padding: "8px 16px", fontWeight: 600, cursor: "pointer", opacity: sending ? 0.6 : 1 }}
             >
-              Enviar
+              {t("send")}
             </button>
           </div>
         </div>

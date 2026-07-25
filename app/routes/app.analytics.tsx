@@ -4,6 +4,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   Page,
   Card,
@@ -46,13 +47,6 @@ function shortId(gid: string) {
   const m = gid.match(/(\d+)$/);
   return m ? `#${m[1]}` : gid;
 }
-function templateLabel(v: string | null) {
-  if (v === "side-by-side" || v === "A") return "Lado a lado";
-  if (v === "list") return "Lista";
-  if (v === "compact" || v === "B") return "Compacto";
-  return v || "—";
-}
-
 const TINTS: Record<string, string> = {
   info: "rgba(0, 122, 255, 0.12)",
   success: "rgba(0, 128, 96, 0.12)",
@@ -79,58 +73,69 @@ function StatCard({ icon, label, value, tint }: { icon: any; label: string; valu
   );
 }
 
+export const handle = { i18n: ["analytics", "common"] };
+
 export default function Analytics() {
   const { metrics, daily, recent, days } = useLoaderData<typeof loader>();
   const [, setSearchParams] = useSearchParams();
+  const { t, i18n } = useTranslation("analytics");
+  const { t: tc } = useTranslation("common");
+
+  const templateLabel = (v: string | null) => {
+    if (v === "side-by-side" || v === "A") return tc("templates.side-by-side");
+    if (v === "list") return tc("templates.list");
+    if (v === "compact" || v === "B") return tc("templates.compact");
+    return v || t("dash");
+  };
 
   const rows = recent.map((e) => [
-    new Date(e.createdAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
-    e.type === "click" ? "Clique" : "Impressão",
+    new Date(e.createdAt).toLocaleString(i18n.language, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
+    e.type === "click" ? t("event.click") : t("event.impression"),
     shortId(e.mainProductId),
     templateLabel(e.layout),
   ]);
 
   return (
-    <Page title="Análise" backAction={{ content: "Painel", url: "/app" }}>
+    <Page title={t("title")} backAction={{ content: t("backAction"), url: "/app" }}>
       <BlockStack gap="500">
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingMd">
-            Últimos {days} dias
+            {t("lastDays", { days })}
           </Text>
           <ButtonGroup variant="segmented">
-            <Button pressed={days === 7} onClick={() => setSearchParams({ days: "7" })}>7 dias</Button>
-            <Button pressed={days === 30} onClick={() => setSearchParams({ days: "30" })}>30 dias</Button>
+            <Button pressed={days === 7} onClick={() => setSearchParams({ days: "7" })}>{t("days7")}</Button>
+            <Button pressed={days === 30} onClick={() => setSearchParams({ days: "30" })}>{t("days30")}</Button>
           </ButtonGroup>
         </InlineStack>
 
         <InlineGrid columns={{ xs: 1, sm: 3 }} gap="400">
-          <StatCard icon={ViewIcon} tint="info" label="Impressões" value={String(metrics.impressions)} />
-          <StatCard icon={CartIcon} tint="success" label="Cliques (add ao carrinho)" value={String(metrics.clicks)} />
-          <StatCard icon={ChartVerticalIcon} tint="magic" label="CTR" value={pct(metrics.ctr)} />
+          <StatCard icon={ViewIcon} tint="info" label={t("impressions")} value={String(metrics.impressions)} />
+          <StatCard icon={CartIcon} tint="success" label={t("clicks")} value={String(metrics.clicks)} />
+          <StatCard icon={ChartVerticalIcon} tint="magic" label={t("ctr")} value={pct(metrics.ctr)} />
         </InlineGrid>
 
         <Card>
           <BlockStack gap="300">
-            <Text as="h3" variant="headingMd">Impressões e cliques por dia</Text>
+            <Text as="h3" variant="headingMd">{t("chartTitle")}</Text>
             <MiniLineChart data={daily} />
           </BlockStack>
         </Card>
 
         <Card>
           <BlockStack gap="300">
-            <Text as="h3" variant="headingMd">Atividade recente</Text>
+            <Text as="h3" variant="headingMd">{t("recentActivity")}</Text>
             {rows.length ? (
               <DataTable
                 columnContentTypes={["text", "text", "text", "text"]}
-                headings={["Quando", "Evento", "Produto", "Template"]}
+                headings={[t("table.when"), t("table.event"), t("table.product"), t("table.template")]}
                 rows={rows}
               />
             ) : (
               <Box padding="400">
                 <InlineStack gap="200" blockAlign="center">
-                  <Badge tone="info">Sem dados</Badge>
+                  <Badge tone="info">{t("noData")}</Badge>
                   <Text as="span" tone="subdued">
-                    Assim que o widget for exibido/clicado na loja, os eventos aparecem aqui.
+                    {t("noDataHint")}
                   </Text>
                 </InlineStack>
               </Box>

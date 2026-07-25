@@ -2,11 +2,13 @@
  * Gráfico de linhas/área inline (SVG, sem dependências). Duas séries na MESMA
  * unidade (contagens) → um único eixo Y. Legenda presente; cores CVD-distintas.
  */
+import { useTranslation } from "react-i18next";
+
 export type DailyPoint = { day: string; impressions: number; clicks: number };
 
 const SERIES = [
-  { key: "impressions" as const, label: "Impressões", color: "#3D5AFE" },
-  { key: "clicks" as const, label: "Cliques", color: "#F59E0B" },
+  { key: "impressions" as const, color: "#3D5AFE" },
+  { key: "clicks" as const, color: "#F59E0B" },
 ];
 
 const INK = "#6B7280";
@@ -17,6 +19,7 @@ function fmtDay(d: string) {
 }
 
 export default function MiniLineChart({ data }: { data: DailyPoint[] }) {
+  const { t } = useTranslation("analytics");
   const W = 720;
   const H = 260;
   const padL = 44;
@@ -42,7 +45,7 @@ export default function MiniLineChart({ data }: { data: DailyPoint[] }) {
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
         role="img"
-        aria-label="Impressões e cliques por dia"
+        aria-label={t("chartTitle")}
         style={{ display: "block", minWidth: 480 }}
       >
         {/* grade + rótulos Y */}
@@ -100,7 +103,7 @@ export default function MiniLineChart({ data }: { data: DailyPoint[] }) {
                 display: "inline-block",
               }}
             />
-            <span style={{ fontSize: 13, color: "#374151" }}>{s.label}</span>
+            <span style={{ fontSize: 13, color: "#374151" }}>{t(`chartSeries.${s.key}`)}</span>
           </div>
         ))}
       </div>

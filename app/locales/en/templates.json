@@ -1,0 +1,14 @@
+{
+  "side-by-side": {
+    "name": "Products side by side",
+    "description": "Showcase-style cards for both products plus a column with the total and the button."
+  },
+  "list": {
+    "name": "Product list",
+    "description": "Vertical list of matching products, with the total and a button to add them all."
+  },
+  "compact": {
+    "name": "Compact",
+    "description": "A slim strip with the suggested product and the button — perfect next to the buy button."
+  }
+}

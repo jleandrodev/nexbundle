@@ -11,6 +11,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { authenticate } from "../shopify.server";
 import { createAttachment } from "../services/support.server";
+import { i18n } from "../i18n/i18next.server";
 import {
   ALLOWED_MIME,
   MAX_UPLOAD_BYTES,
@@ -20,6 +21,7 @@ import {
 
 export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
+  const t = await i18n.getFixedT(request, "support");
 
   const form = await unstable_parseMultipartFormData(
     request,
@@ -27,13 +29,13 @@ export async function action({ request }: ActionFunctionArgs) {
   );
   const file = form.get("file");
   if (!file || typeof file === "string") {
-    return json({ error: "Nenhum arquivo enviado." }, { status: 400 });
+    return json({ error: t("uploadNoFile") }, { status: 400 });
   }
   if (!ALLOWED_MIME.has(file.type)) {
-    return json({ error: "Tipo de arquivo não permitido." }, { status: 400 });
+    return json({ error: t("uploadBadType") }, { status: 400 });
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return json({ error: "Arquivo muito grande (máx. 10MB)." }, { status: 400 });
+    return json({ error: t("uploadTooLarge") }, { status: 400 });
   }
 
   const id = randomUUID();

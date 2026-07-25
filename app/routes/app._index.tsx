@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams, Link as RemixLink } from "@remix-run/react";
+import { Trans, useTranslation } from "react-i18next";
 import {
   Page,
   Layout,
@@ -37,6 +38,9 @@ import {
 } from "../services/relationships.server";
 import { getEntitlement } from "../services/billing.server";
 import { isUnlimited } from "../plans";
+import LocaleSwitcher from "../components/LocaleSwitcher";
+
+export const handle = { i18n: ["dashboard", "common"] };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const ctx = await authenticate.admin(request);
@@ -78,11 +82,11 @@ function shortId(gid: string) {
   const m = gid.match(/(\d+)$/);
   return m ? `#${m[1]}` : gid;
 }
-function templateLabel(v: string) {
-  if (v === "side-by-side" || v === "A") return "Lado a lado";
-  if (v === "list") return "Lista";
-  if (v === "compact" || v === "B") return "Compacto";
-  return v;
+function templateKey(v: string): string | null {
+  if (v === "side-by-side" || v === "A") return "side-by-side";
+  if (v === "list") return "list";
+  if (v === "compact" || v === "B") return "compact";
+  return null;
 }
 
 const TINTS: Record<string, string> = {
@@ -169,15 +173,21 @@ export default function Dashboard() {
     themeLinks,
   } = useLoaderData<typeof loader>();
   const [, setSearchParams] = useSearchParams();
+  const { t } = useTranslation("dashboard");
+  const { t: tc } = useTranslation("common");
 
-  const planLabel = isDev ? "Desenvolvimento (grátis)" : plan ?? "Sem plano";
-  const usageLabel = unlimited ? "Ilimitado" : `${used} / ${limit} produtos`;
+  const planLabel = isDev
+    ? t("planDevelopment")
+    : plan ?? t("planNone");
+  const usageLabel = unlimited
+    ? t("usageUnlimited")
+    : t("usage", { used, limit });
   const nearLimit = !unlimited && !isDev && limit > 0 && used / limit >= 0.8;
 
   const steps = [
-    { label: "Escolher um plano", done: isDev || subscribed },
-    { label: "Criar um componente", done: hasRelationships },
-    { label: "Ativar o bloco no tema", done: false },
+    { key: "plan", label: t("guide.stepPlan"), done: isDev || subscribed },
+    { key: "component", label: t("guide.stepComponent"), done: hasRelationships },
+    { key: "theme", label: t("guide.stepTheme"), done: false },
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const showGuide = doneCount < 2;
@@ -194,29 +204,35 @@ export default function Dashboard() {
   );
   const layoutRows = useMemo(
     () =>
-      metrics.byLayout.map((l) => [
-        templateLabel(l.layout),
-        String(l.impressions),
-        String(l.clicks),
-        pct(l.ctr),
-      ]),
-    [metrics.byLayout],
+      metrics.byLayout.map((l) => {
+        const key = templateKey(l.layout);
+        return [
+          key ? tc(`templates.${key}`) : l.layout,
+          String(l.impressions),
+          String(l.clicks),
+          pct(l.ctr),
+        ];
+      }),
+    [metrics.byLayout, tc],
   );
 
   return (
     <Page
-      title="Painel"
-      primaryAction={{ content: "Criar componente", url: "/app/relationships/new" }}
+      title={t("title")}
+      primaryAction={{ content: tc("createComponent"), url: "/app/relationships/new" }}
     >
       <BlockStack gap="500">
-        {/* Marca */}
-        <Box paddingBlockEnd="100">
-          <img
-            src="/logo.png"
-            alt="NexBundle"
-            style={{ height: 34, width: "auto", display: "block" }}
-          />
-        </Box>
+        {/* Marca + idioma */}
+        <InlineStack align="space-between" blockAlign="center">
+          <Box paddingBlockEnd="100">
+            <img
+              src="/logo.png"
+              alt="NexBundle"
+              style={{ height: 34, width: "auto", display: "block" }}
+            />
+          </Box>
+          <LocaleSwitcher />
+        </InlineStack>
 
         {/* Status + Plano */}
         <InlineGrid columns={{ xs: 1, md: 2 }} gap="400">
@@ -224,16 +240,14 @@ export default function Dashboard() {
             <BlockStack gap="200">
               <InlineStack gap="200" blockAlign="center">
                 <Text as="h3" variant="headingSm">
-                  Status do Buy Together
+                  {t("status.heading")}
                 </Text>
                 <Badge tone={hasRelationships ? "success" : "attention"}>
-                  {hasRelationships ? "Ativo" : "Sem componentes"}
+                  {hasRelationships ? t("status.active") : t("status.noComponents")}
                 </Badge>
               </InlineStack>
               <Text as="p" tone="subdued">
-                {hasRelationships
-                  ? "Seus componentes de compra conjunta estão configurados. Verifique se o bloco está no tema."
-                  : "Crie seu primeiro componente para começar a sugerir produtos juntos."}
+                {hasRelationships ? t("status.configured") : t("status.empty")}
               </Text>
             </BlockStack>
           </Card>
@@ -243,19 +257,19 @@ export default function Dashboard() {
               <InlineStack align="space-between" blockAlign="center">
                 <InlineStack gap="200" blockAlign="center">
                   <Text as="h3" variant="headingSm">
-                    Plano {planLabel}
+                    {t("plan.heading", { plan: planLabel })}
                   </Text>
-                  {isDev ? <Badge tone="info">Dev store</Badge> : null}
-                  {nearLimit ? <Badge tone="warning">Perto do limite</Badge> : null}
+                  {isDev ? <Badge tone="info">{t("plan.devStore")}</Badge> : null}
+                  {nearLimit ? <Badge tone="warning">{t("plan.nearLimit")}</Badge> : null}
                 </InlineStack>
                 {!isDev ? (
                   <Button url="/app/plans" variant={nearLimit ? "primary" : "tertiary"}>
-                    {plan ? "Mudar" : "Escolher"}
+                    {plan ? t("plan.change") : t("plan.choose")}
                   </Button>
                 ) : null}
               </InlineStack>
               <Text as="p" tone="subdued">
-                Produtos com Buy Together: {usageLabel}
+                {t("plan.usage", { usage: usageLabel })}
               </Text>
             </BlockStack>
           </Card>
@@ -264,21 +278,21 @@ export default function Dashboard() {
         {/* KPIs */}
         <InlineStack align="space-between" blockAlign="center">
           <Text as="h2" variant="headingMd">
-            Visão geral · últimos {days} dias
+            {t("kpis.overview", { days })}
           </Text>
           <ButtonGroup variant="segmented">
             <Button pressed={days === 7} onClick={() => setSearchParams({ days: "7" })}>
-              7 dias
+              {t("kpis.days7")}
             </Button>
             <Button pressed={days === 30} onClick={() => setSearchParams({ days: "30" })}>
-              30 dias
+              {t("kpis.days30")}
             </Button>
           </ButtonGroup>
         </InlineStack>
         <InlineGrid columns={{ xs: 1, sm: 3 }} gap="400">
-          <StatCard icon={ViewIcon} tint="info" label="Impressões" value={String(metrics.impressions)} />
-          <StatCard icon={CartIcon} tint="success" label="Cliques (add ao carrinho)" value={String(metrics.clicks)} />
-          <StatCard icon={ChartVerticalIcon} tint="magic" label="CTR" value={pct(metrics.ctr)} />
+          <StatCard icon={ViewIcon} tint="info" label={t("kpis.impressions")} value={String(metrics.impressions)} />
+          <StatCard icon={CartIcon} tint="success" label={t("kpis.clicks")} value={String(metrics.clicks)} />
+          <StatCard icon={ChartVerticalIcon} tint="magic" label={t("kpis.ctr")} value={pct(metrics.ctr)} />
         </InlineGrid>
 
         {/* Guia de início */}
@@ -287,24 +301,24 @@ export default function Dashboard() {
             <BlockStack gap="300">
               <InlineStack align="space-between" blockAlign="center">
                 <Text as="h3" variant="headingMd">
-                  Guia de início
+                  {t("guide.heading")}
                 </Text>
-                <Badge>{`${doneCount}/${steps.length} concluídos`}</Badge>
+                <Badge>{t("guide.progress", { done: doneCount, total: steps.length })}</Badge>
               </InlineStack>
               <BlockStack gap="200">
                 {steps.map((s) => (
-                  <Step key={s.label} done={s.done}>
+                  <Step key={s.key} done={s.done}>
                     {s.label}
                   </Step>
                 ))}
               </BlockStack>
               <InlineStack gap="200">
                 {!isDev && !subscribed ? (
-                  <Button url="/app/plans">Escolher plano</Button>
+                  <Button url="/app/plans">{t("guide.choosePlan")}</Button>
                 ) : null}
                 {!hasRelationships ? (
                   <Button variant="primary" url="/app/relationships/new">
-                    Criar componente
+                    {t("guide.createComponent")}
                   </Button>
                 ) : null}
               </InlineStack>
@@ -318,20 +332,18 @@ export default function Dashboard() {
             <InlineStack gap="200" blockAlign="center">
               <Icon source={PaintBrushFlatIcon} tone="base" />
               <Text as="h3" variant="headingMd">
-                Ative o Buy Together no seu tema
+                {t("theme.heading")}
               </Text>
             </InlineStack>
             <Text as="p" tone="subdued">
-              O widget não aparece sozinho: adicione o bloco à página de produto pelo
-              editor de tema. Escolha onde ele entra — abre o editor com o bloco já
-              inserido; depois é só posicionar e <b>Salvar</b>.
+              <Trans t={t} i18nKey="theme.body" components={{ bold: <b /> }} />
             </Text>
             <InlineStack gap="300" wrap>
               <Button url={themeLinks.section} target="_blank" variant="primary">
-                Adicionar em seção própria
+                {t("theme.addSection")}
               </Button>
               <Button url={themeLinks.inline} target="_blank">
-                Adicionar junto ao produto
+                {t("theme.addInline")}
               </Button>
             </InlineStack>
           </BlockStack>
@@ -341,14 +353,11 @@ export default function Dashboard() {
         {!hasRelationships ? (
           <Card>
             <EmptyState
-              heading="Crie seu primeiro componente"
-              action={{ content: "Criar componente", url: "/app/relationships/new" }}
+              heading={t("metrics.emptyHeading")}
+              action={{ content: tc("createComponent"), url: "/app/relationships/new" }}
               image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
             >
-              <p>
-                Vincule um produto principal a produtos que combinam. Depois adicione o
-                bloco “Buy Together” na página de produto pelo editor de tema.
-              </p>
+              <p>{t("metrics.emptyBody")}</p>
             </EmptyState>
           </Card>
         ) : (
@@ -357,18 +366,23 @@ export default function Dashboard() {
               <Card>
                 <BlockStack gap="300">
                   <Text as="h3" variant="headingMd">
-                    Por template
+                    {t("metrics.byTemplate")}
                   </Text>
                   {layoutRows.length ? (
                     <DataTable
                       columnContentTypes={["text", "numeric", "numeric", "numeric"]}
-                      headings={["Template", "Impressões", "Cliques", "CTR"]}
+                      headings={[
+                        t("metrics.colTemplate"),
+                        t("metrics.colImpressions"),
+                        t("metrics.colClicks"),
+                        t("metrics.colCtr"),
+                      ]}
                       rows={layoutRows}
                     />
                   ) : (
                     <Box padding="400">
                       <Text as="p" tone="subdued">
-                        Sem eventos ainda neste período.
+                        {t("metrics.noEvents")}
                       </Text>
                     </Box>
                   )}
@@ -380,20 +394,25 @@ export default function Dashboard() {
                 <BlockStack gap="300">
                   <InlineStack align="space-between" blockAlign="center">
                     <Text as="h3" variant="headingMd">
-                      Por produto
+                      {t("metrics.byProduct")}
                     </Text>
-                    <RemixLink to="/app/relationships">Ver componentes</RemixLink>
+                    <RemixLink to="/app/relationships">{tc("viewComponents")}</RemixLink>
                   </InlineStack>
                   {productRows.length ? (
                     <DataTable
                       columnContentTypes={["text", "numeric", "numeric", "numeric"]}
-                      headings={["Produto", "Impressões", "Cliques", "CTR"]}
+                      headings={[
+                        t("metrics.colProduct"),
+                        t("metrics.colImpressions"),
+                        t("metrics.colClicks"),
+                        t("metrics.colCtr"),
+                      ]}
                       rows={productRows}
                     />
                   ) : (
                     <Box padding="400">
                       <Text as="p" tone="subdued">
-                        Ainda não há eventos neste período.
+                        {t("metrics.noEventsAlt")}
                       </Text>
                     </Box>
                   )}

@@ -10,19 +10,24 @@ import {
   Text,
   TextField,
 } from "@shopify/polaris";
-import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
+import { useTranslation } from "react-i18next";
 
 import { login } from "../../shopify.server";
+import { normalizeLocale } from "../../i18n/config";
+import { polarisTranslations } from "../../i18n/polaris.server";
 
 import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
+export const handle = { i18n: ["auth"] };
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const errors = loginErrorMessage(await login(request));
+  const locale = normalizeLocale(new URL(request.url).searchParams.get("locale"));
 
-  return { errors, polarisTranslations };
+  return { errors, polarisTranslations: polarisTranslations(locale), locale };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -38,6 +43,7 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
+  const { t } = useTranslation("auth");
 
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
@@ -46,19 +52,19 @@ export default function Auth() {
           <Form method="post">
             <FormLayout>
               <Text variant="headingMd" as="h2">
-                Log in
+                {t("login")}
               </Text>
               <TextField
                 type="text"
                 name="shop"
-                label="Shop domain"
+                label={t("shopDomain")}
                 helpText="example.myshopify.com"
                 value={shop}
                 onChange={setShop}
                 autoComplete="on"
                 error={errors.shop}
               />
-              <Button submit>Log in</Button>
+              <Button submit>{t("login")}</Button>
             </FormLayout>
           </Form>
         </Card>

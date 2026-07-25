@@ -17,6 +17,7 @@ import {
   List,
   Box,
 } from "@shopify/polaris";
+import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getEntitlement, billingIsTest } from "../services/billing.server";
 import {
@@ -26,6 +27,8 @@ import {
   PRO_PLAN,
   ENTERPRISE_PLAN,
 } from "../plans";
+
+export const handle = { i18n: ["plans", "common"] };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const ctx = await authenticate.admin(request);
@@ -46,46 +49,59 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Plans() {
   const { plans, trialDays, current } = useLoaderData<typeof loader>();
+  const { t, i18n } = useTranslation("plans");
   const nav = useNavigation();
   const submittingPlan =
     nav.state === "submitting" ? String(nav.formData?.get("plan")) : null;
 
   return (
     <Page
-      title="Escolha seu plano"
-      subtitle={`Todos os planos incluem ${trialDays} dias de teste grátis.`}
+      title={t("title")}
+      subtitle={t("subtitle", { days: trialDays })}
     >
       <Layout>
         {plans.map((p) => {
           const isCurrent = current === p.name;
+          const planName = t(`${p.id}.name`);
+          const features = t(`${p.id}.features`, {
+            returnObjects: true,
+          }) as string[];
+          const price = new Intl.NumberFormat(i18n.language, {
+            style: "currency",
+            currency: p.currency,
+          }).format(p.price);
           return (
             <Layout.Section variant="oneThird" key={p.name}>
               <Card>
                 <BlockStack gap="400">
                   <InlineStack align="space-between" blockAlign="center">
                     <Text as="h2" variant="headingLg">
-                      {p.name}
+                      {planName}
                     </Text>
-                    {isCurrent ? <Badge tone="success">Plano atual</Badge> : null}
+                    {isCurrent ? (
+                      <Badge tone="success">{t("current")}</Badge>
+                    ) : null}
                   </InlineStack>
 
                   <InlineStack blockAlign="baseline" gap="100">
                     <Text as="span" variant="heading2xl">
-                      ${p.price.toFixed(2)}
+                      {price}
                     </Text>
                     <Text as="span" tone="subdued">
-                      /mês ({p.currency})
+                      {t("perMonth")}
                     </Text>
                   </InlineStack>
 
                   <Box>
                     <Badge tone="info">
-                      {p.unlimited ? "Produtos ilimitados" : `Até ${p.limit} produtos`}
+                      {p.unlimited
+                        ? t("unlimited")
+                        : t("upTo", { limit: p.limit })}
                     </Badge>
                   </Box>
 
                   <List>
-                    {p.features.map((f) => (
+                    {features.map((f) => (
                       <List.Item key={f}>{f}</List.Item>
                     ))}
                   </List>
@@ -100,8 +116,8 @@ export default function Plans() {
                       disabled={isCurrent}
                     >
                       {isCurrent
-                        ? "Plano ativo"
-                        : `Assinar ${p.name} — ${trialDays} dias grátis`}
+                        ? t("active")
+                        : t("subscribe", { plan: planName, days: trialDays })}
                     </Button>
                   </Form>
                 </BlockStack>

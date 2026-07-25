@@ -68,6 +68,13 @@ model Companion {
   @@index([relationshipId])
 }
 
+// Preferências do lojista por loja (1 registro por shop). Ex.: idioma do painel admin.
+model ShopPreference {
+  shop        String   @id
+  adminLocale String? // "pt-BR" | "en" | "es" | null = seguir o idioma do Shopify
+  updatedAt   DateTime @updatedAt
+}
+
 // Config de estilo GLOBAL por loja (1 registro por shop). Defaults = comportamento seguro.
 model StylingConfig {
   shop            String   @id

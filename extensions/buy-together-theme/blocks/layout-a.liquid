@@ -11,14 +11,24 @@
   data-bt-variant-id="{{ product.selected_or_first_available_variant.id }}"
   data-bt-variant-price="{{ product.selected_or_first_available_variant.price }}"
   data-bt-money-format="{{ shop.money_format | escape }}"
+  data-bt-i18n-total="{{ 'buy_together.total' | t | escape }}"
+  data-bt-i18n-total-two="{{ 'buy_together.total_two' | t | escape }}"
+  data-bt-i18n-add-all="{{ 'buy_together.add_all' | t | escape }}"
+  data-bt-i18n-add-cart="{{ 'buy_together.add_to_cart' | t | escape }}"
   hidden
 >
-  <div class="bt-skeleton" aria-hidden="true">{{ block.settings.loading_text }}</div>
+  <div class="bt-skeleton" aria-hidden="true">
+    {%- if block.settings.loading_text != blank -%}
+      {{ block.settings.loading_text }}
+    {%- else -%}
+      {{ 'buy_together.loading' | t }}
+    {%- endif -%}
+  </div>
 </div>
 
 {% schema %}
 {
-  "name": "Compre junto lado a lado",
+  "name": "t:buy_together.layout_a_name",
   "target": "section",
   "stylesheet": "buy-together.css",
   "javascript": "buy-together.js",
@@ -26,8 +36,8 @@
     {
       "type": "text",
       "id": "loading_text",
-      "label": "Texto de carregamento",
-      "default": "Carregando sugestão..."
+      "label": "t:buy_together.loading_label",
+      "info": "t:buy_together.loading_info"
     }
   ]
 }

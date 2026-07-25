@@ -1,16 +1,21 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import { NavMenu } from "@shopify/app-bridge-react";
+import { useTranslation } from "react-i18next";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
 import { getEntitlement } from "../services/billing.server";
 import SupportChat from "../components/SupportChat";
+import { resolveAdminLocale, serializeLocaleCookie } from "../i18n/resolve.server";
+import { polarisTranslations } from "../i18n/polaris.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
+
+export const handle = { i18n: ["nav", "common", "support"] };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const ctx = await authenticate.admin(request);
@@ -22,21 +27,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw redirect("/app/plans");
   }
 
-  return { apiKey: process.env.SHOPIFY_API_KEY || "", entitlement };
+  const locale = await resolveAdminLocale(request, ctx.session.shop);
+
+  return json(
+    {
+      apiKey: process.env.SHOPIFY_API_KEY || "",
+      entitlement,
+      polarisTranslations: polarisTranslations(locale),
+    },
+    // Espelha o override do DB no cookie para entry.server/root ficarem alinhados.
+    { headers: { "Set-Cookie": await serializeLocaleCookie(locale) } },
+  );
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData<typeof loader>();
+  const { apiKey, polarisTranslations } = useLoaderData<typeof loader>();
+  const { t } = useTranslation("nav");
 
   return (
-    <AppProvider isEmbeddedApp apiKey={apiKey}>
+    <AppProvider isEmbeddedApp apiKey={apiKey} i18n={polarisTranslations}>
       <NavMenu>
         <Link to="/app" rel="home">
-          Dashboard
+          {t("dashboard")}
         </Link>
-        <Link to="/app/relationships">Componentes</Link>
-        <Link to="/app/analytics">Análise</Link>
-        <Link to="/app/plans">Planos</Link>
+        <Link to="/app/relationships">{t("components")}</Link>
+        <Link to="/app/analytics">{t("analytics")}</Link>
+        <Link to="/app/plans">{t("plans")}</Link>
       </NavMenu>
       <Outlet />
       <SupportChat />

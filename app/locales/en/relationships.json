@@ -1,0 +1,88 @@
+{
+  "list": {
+    "title": "Components",
+    "back": "Dashboard",
+    "emptyHeading": "No components yet",
+    "emptyBody": "Link a main product to products that go well together to buy as a set.",
+    "resourceSingular": "component",
+    "resourcePlural": "components",
+    "colComponent": "Component",
+    "colCompanions": "Companions",
+    "colTemplate": "Template",
+    "colDirection": "Direction",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "confirmDelete": "Delete this component?"
+  },
+  "gallery": {
+    "title": "Choose a template",
+    "subtitle": "Select the component layout. You'll customize the style next.",
+    "back": "Relationships",
+    "previewPlaceholder": "Template preview",
+    "useTemplate": "Use this template"
+  },
+  "direction": {
+    "uni": "One-way",
+    "bi": "Two-way"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "editor": {
+    "titleCreate": "New: {{name}}",
+    "titleEdit": "Edit: {{name}}",
+    "backTemplates": "Templates",
+    "backRelationships": "Relationships",
+    "delete": "Delete",
+    "saveError": "Couldn't save",
+    "previewHeading": "Preview",
+    "previewHelp": "The preview uses samples when no products are selected. The actual position in your store is set by dragging the block in the theme editor.",
+    "tabConfig": "Settings",
+    "tabStyle": "Style",
+    "nameLabel": "Component name",
+    "namePlaceholder": "e.g. Shampoo + Conditioner",
+    "nameHelp": "Only to identify it in the list. If empty, the main product's name is used.",
+    "mainProduct": "Main product",
+    "swap": "Swap",
+    "selectMain": "Select main",
+    "companions": "Companions",
+    "edit": "Edit",
+    "select": "Select",
+    "companionsEmpty": "Select at least one companion product.",
+    "remove": "Remove",
+    "directionTitle": "Direction",
+    "directionUniHelp": "Shows only on the main product's page.",
+    "directionBiHelp": "Shows on both: the main suggests the companion and vice versa.",
+    "activeLabel": "Active",
+    "activeHelp": "Turn off to hide without deleting.",
+    "styleBackground": "Background",
+    "styleText": "Text",
+    "showTitle": "Show section title",
+    "titleTextLabel": "Title text",
+    "titleColor": "Title color",
+    "titleSize": "Title size: {{size}}px",
+    "button": "Button",
+    "buttonHover": "Button (hover)",
+    "buttonTextColor": "Button text",
+    "buttonLabel": "Button label",
+    "cardBorder": "Cards with border",
+    "save": "Save component",
+    "confirmDelete": "Delete this component? This action cannot be undone."
+  },
+  "preview": {
+    "mainSample": "Main product",
+    "companionSample": "Companion product",
+    "companionSample2": "Another companion",
+    "total": "Total",
+    "totalTwoItems": "Total for both items",
+    "addAll": "Add all to cart"
+  },
+  "errors": {
+    "limitReached": "You've reached your plan limit ({{limit}} products). Upgrade under \"Plans\".",
+    "duplicate": "A component already exists for this main product."
+  }
+}

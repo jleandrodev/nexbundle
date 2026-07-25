@@ -1,0 +1,88 @@
+{
+  "list": {
+    "title": "Componentes",
+    "back": "Panel",
+    "emptyHeading": "Aún no hay componentes",
+    "emptyBody": "Vincula un producto principal con productos que combinan para comprarlos juntos.",
+    "resourceSingular": "componente",
+    "resourcePlural": "componentes",
+    "colComponent": "Componente",
+    "colCompanions": "Complementos",
+    "colTemplate": "Plantilla",
+    "colDirection": "Dirección",
+    "colStatus": "Estado",
+    "colActions": "Acciones",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar este componente?"
+  },
+  "gallery": {
+    "title": "Elige una plantilla",
+    "subtitle": "Selecciona el formato del componente. Personalizas el estilo a continuación.",
+    "back": "Relaciones",
+    "previewPlaceholder": "Vista previa de la plantilla",
+    "useTemplate": "Usar esta plantilla"
+  },
+  "direction": {
+    "uni": "Unidireccional",
+    "bi": "Bidireccional"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "editor": {
+    "titleCreate": "Nuevo: {{name}}",
+    "titleEdit": "Editar: {{name}}",
+    "backTemplates": "Plantillas",
+    "backRelationships": "Relaciones",
+    "delete": "Eliminar",
+    "saveError": "No se pudo guardar",
+    "previewHeading": "Vista previa",
+    "previewHelp": "La vista previa usa muestras cuando no hay productos seleccionados. La posición real en la tienda se define arrastrando el bloque en el editor de temas.",
+    "tabConfig": "Configuración",
+    "tabStyle": "Estilo",
+    "nameLabel": "Nombre del componente",
+    "namePlaceholder": "Ej.: Champú + Acondicionador",
+    "nameHelp": "Solo para identificarlo en la lista. Si está vacío, usa el nombre del producto principal.",
+    "mainProduct": "Producto principal",
+    "swap": "Cambiar",
+    "selectMain": "Seleccionar principal",
+    "companions": "Complementos",
+    "edit": "Editar",
+    "select": "Seleccionar",
+    "companionsEmpty": "Selecciona al menos un producto complementario.",
+    "remove": "Quitar",
+    "directionTitle": "Dirección",
+    "directionUniHelp": "Aparece solo en la página del producto principal.",
+    "directionBiHelp": "Aparece en ambos: el principal sugiere el complemento y viceversa.",
+    "activeLabel": "Activo",
+    "activeHelp": "Desactívalo para ocultarlo sin borrarlo.",
+    "styleBackground": "Fondo",
+    "styleText": "Texto",
+    "showTitle": "Mostrar título de la sección",
+    "titleTextLabel": "Texto del título",
+    "titleColor": "Color del título",
+    "titleSize": "Tamaño del título: {{size}}px",
+    "button": "Botón",
+    "buttonHover": "Botón (hover)",
+    "buttonTextColor": "Texto del botón",
+    "buttonLabel": "Etiqueta del botón",
+    "cardBorder": "Tarjetas con borde",
+    "save": "Guardar componente",
+    "confirmDelete": "¿Eliminar este componente? Esta acción no se puede deshacer."
+  },
+  "preview": {
+    "mainSample": "Producto principal",
+    "companionSample": "Producto complementario",
+    "companionSample2": "Otro complemento",
+    "total": "Total",
+    "totalTwoItems": "Total de los dos artículos",
+    "addAll": "Añadir todo al carrito"
+  },
+  "errors": {
+    "limitReached": "Has alcanzado el límite de tu plan ({{limit}} productos). Mejora tu plan en \"Planes\".",
+    "duplicate": "Ya existe un componente para este producto principal."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "buy_together": {
+    "layout_a_name": "Compra junto lado a lado",
+    "layout_b_name": "Compra junto compacto",
+    "loading_label": "Texto de carga",
+    "loading_info": "Se muestra mientras carga la sugerencia. Déjalo vacío para usar la traducción automática."
+  }
+}

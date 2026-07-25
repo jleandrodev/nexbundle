@@ -1,0 +1,14 @@
+{
+  "side-by-side": {
+    "name": "Productos lado a lado",
+    "description": "Tarjetas de ambos productos en formato de escaparate y una columna con el total y el botón."
+  },
+  "list": {
+    "name": "Lista de productos",
+    "description": "Lista vertical de los productos que combinan, con el total y un botón para llevarlo todo."
+  },
+  "compact": {
+    "name": "Compacto",
+    "description": "Franja compacta con el producto sugerido y el botón — ideal junto al botón de compra."
+  }
+}

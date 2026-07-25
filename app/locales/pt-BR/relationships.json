@@ -1,0 +1,88 @@
+{
+  "list": {
+    "title": "Componentes",
+    "back": "Painel",
+    "emptyHeading": "Nenhum componente ainda",
+    "emptyBody": "Vincule um produto principal a produtos que combinam para comprar junto.",
+    "resourceSingular": "componente",
+    "resourcePlural": "componentes",
+    "colComponent": "Componente",
+    "colCompanions": "Companheiros",
+    "colTemplate": "Template",
+    "colDirection": "Direção",
+    "colStatus": "Status",
+    "colActions": "Ações",
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "delete": "Excluir",
+    "confirmDelete": "Excluir este componente?"
+  },
+  "gallery": {
+    "title": "Escolha um template",
+    "subtitle": "Selecione o formato do componente. Você personaliza o estilo em seguida.",
+    "back": "Relacionamentos",
+    "previewPlaceholder": "Prévia do template",
+    "useTemplate": "Usar este template"
+  },
+  "direction": {
+    "uni": "Unidirecional",
+    "bi": "Bidirecional"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo"
+  },
+  "editor": {
+    "titleCreate": "Novo: {{name}}",
+    "titleEdit": "Editar: {{name}}",
+    "backTemplates": "Templates",
+    "backRelationships": "Relacionamentos",
+    "delete": "Excluir",
+    "saveError": "Não foi possível salvar",
+    "previewHeading": "Pré-visualização",
+    "previewHelp": "O preview usa amostras quando não há produtos escolhidos. A posição real na loja é definida ao arrastar o bloco no editor de tema.",
+    "tabConfig": "Configurações",
+    "tabStyle": "Estilo",
+    "nameLabel": "Nome do componente",
+    "namePlaceholder": "Ex.: Shampoo + Condicionador",
+    "nameHelp": "Só para identificar na listagem. Se vazio, usa o nome do produto principal.",
+    "mainProduct": "Produto principal",
+    "swap": "Trocar",
+    "selectMain": "Selecionar principal",
+    "companions": "Companheiros",
+    "edit": "Editar",
+    "select": "Selecionar",
+    "companionsEmpty": "Selecione ao menos um produto companheiro.",
+    "remove": "Remover",
+    "directionTitle": "Direção",
+    "directionUniHelp": "Aparece só na página do produto principal.",
+    "directionBiHelp": "Aparece nos dois: o principal sugere o companheiro e vice-versa.",
+    "activeLabel": "Ativo",
+    "activeHelp": "Desative para esconder sem apagar.",
+    "styleBackground": "Fundo",
+    "styleText": "Texto",
+    "showTitle": "Mostrar título da seção",
+    "titleTextLabel": "Texto do título",
+    "titleColor": "Cor do título",
+    "titleSize": "Tamanho do título: {{size}}px",
+    "button": "Botão",
+    "buttonHover": "Botão (hover)",
+    "buttonTextColor": "Texto do botão",
+    "buttonLabel": "Rótulo do botão",
+    "cardBorder": "Cards com borda",
+    "save": "Salvar componente",
+    "confirmDelete": "Excluir este componente? Esta ação não pode ser desfeita."
+  },
+  "preview": {
+    "mainSample": "Produto principal",
+    "companionSample": "Produto companheiro",
+    "companionSample2": "Outro companheiro",
+    "total": "Total",
+    "totalTwoItems": "Total dos dois itens",
+    "addAll": "Adicionar todos ao carrinho"
+  },
+  "errors": {
+    "limitReached": "Você atingiu o limite do seu plano ({{limit}} produtos). Faça upgrade em \"Planos\".",
+    "duplicate": "Já existe um componente para este produto principal."
+  }
+}

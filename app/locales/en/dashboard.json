@@ -1,0 +1,58 @@
+{
+  "title": "Dashboard",
+  "planDevelopment": "Development (free)",
+  "planNone": "No plan",
+  "usageUnlimited": "Unlimited",
+  "usage": "{{used}} / {{limit}} products",
+  "status": {
+    "heading": "Buy Together status",
+    "active": "Active",
+    "noComponents": "No components",
+    "configured": "Your buy-together components are set up. Make sure the block is in your theme.",
+    "empty": "Create your first component to start suggesting products together."
+  },
+  "plan": {
+    "heading": "{{plan}} plan",
+    "devStore": "Dev store",
+    "nearLimit": "Near limit",
+    "change": "Change",
+    "choose": "Choose",
+    "usage": "Products with Buy Together: {{usage}}"
+  },
+  "kpis": {
+    "overview": "Overview · last {{days}} days",
+    "days7": "7 days",
+    "days30": "30 days",
+    "impressions": "Impressions",
+    "clicks": "Clicks (add to cart)",
+    "ctr": "CTR"
+  },
+  "guide": {
+    "heading": "Getting started",
+    "progress": "{{done}}/{{total}} done",
+    "stepPlan": "Choose a plan",
+    "stepComponent": "Create a component",
+    "stepTheme": "Enable the block in your theme",
+    "choosePlan": "Choose plan",
+    "createComponent": "Create component"
+  },
+  "theme": {
+    "heading": "Enable Buy Together in your theme",
+    "body": "The widget doesn't appear on its own: add the block to the product page from the theme editor. Choose where it goes — this opens the editor with the block already inserted; then just position it and <bold>Save</bold>.",
+    "addSection": "Add in its own section",
+    "addInline": "Add next to the product"
+  },
+  "metrics": {
+    "emptyHeading": "Create your first component",
+    "emptyBody": "Link a main product to products that go well together. Then add the “Buy Together” block on the product page from the theme editor.",
+    "byTemplate": "By template",
+    "byProduct": "By product",
+    "noEvents": "No events yet in this period.",
+    "noEventsAlt": "No events yet in this period.",
+    "colTemplate": "Template",
+    "colProduct": "Product",
+    "colImpressions": "Impressions",
+    "colClicks": "Clicks",
+    "colCtr": "CTR"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "buy_together": {
+    "layout_a_name": "Buy Together side by side",
+    "layout_b_name": "Buy Together compact",
+    "loading_label": "Loading text",
+    "loading_info": "Shown while the suggestion loads. Leave empty to use the automatic translation."
+  }
+}

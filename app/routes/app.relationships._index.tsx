@@ -4,6 +4,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate, useFetcher } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   Page,
   Card,
@@ -23,11 +24,8 @@ import {
   deleteRelationship,
 } from "../services/relationships.server";
 import { enrichProducts } from "../services/products.server";
-import { TEMPLATES } from "../lib/templates";
 
-const TEMPLATE_NAME: Record<string, string> = Object.fromEntries(
-  TEMPLATES.map((t) => [t.id, t.name]),
-);
+export const handle = { i18n: ["relationships", "templates", "common"] };
 
 function shortId(gid: string) {
   const m = gid.match(/(\d+)$/);
@@ -51,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         title: e?.title || shortId(r.mainProductId),
         image: e?.image || null,
         companions: r.companions.length,
-        template: TEMPLATE_NAME[r.template] || r.template,
+        template: r.template,
         direction: r.direction,
         enabled: r.enabled,
       };
@@ -76,6 +74,8 @@ type Rel = ReturnType<typeof useLoaderData<typeof loader>>["relationships"][numb
 
 function Row({ r, index }: { r: Rel; index: number }) {
   const navigate = useNavigate();
+  const { t } = useTranslation("relationships");
+  const { t: tt } = useTranslation("templates");
   const toggle = useFetcher();
   const del = useFetcher();
 
@@ -106,12 +106,16 @@ function Row({ r, index }: { r: Rel; index: number }) {
         </InlineStack>
       </IndexTable.Cell>
       <IndexTable.Cell>{r.companions}</IndexTable.Cell>
-      <IndexTable.Cell>{r.template}</IndexTable.Cell>
+      <IndexTable.Cell>{tt(`${r.template}.name`)}</IndexTable.Cell>
       <IndexTable.Cell>
-        {r.direction === "bi" ? "Bidirecional" : "Unidirecional"}
+        {r.direction === "bi" ? t("direction.bi") : t("direction.uni")}
       </IndexTable.Cell>
       <IndexTable.Cell>
-        {enabled ? <Badge tone="success">Ativo</Badge> : <Badge>Inativo</Badge>}
+        {enabled ? (
+          <Badge tone="success">{t("status.active")}</Badge>
+        ) : (
+          <Badge>{t("status.inactive")}</Badge>
+        )}
       </IndexTable.Cell>
       <IndexTable.Cell>
         <div onClick={(e) => e.stopPropagation()}>
@@ -121,19 +125,19 @@ function Row({ r, index }: { r: Rel; index: number }) {
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="enabled" value={enabled ? "0" : "1"} />
               <Button submit size="slim" variant="tertiary">
-                {enabled ? "Desativar" : "Ativar"}
+                {enabled ? t("list.deactivate") : t("list.activate")}
               </Button>
             </toggle.Form>
             <del.Form
               method="post"
               onSubmit={(e) => {
-                if (!confirm("Excluir este componente?")) e.preventDefault();
+                if (!confirm(t("list.confirmDelete"))) e.preventDefault();
               }}
             >
               <input type="hidden" name="intent" value="delete" />
               <input type="hidden" name="id" value={r.id} />
               <Button submit size="slim" variant="tertiary" tone="critical">
-                Excluir
+                {t("list.delete")}
               </Button>
             </del.Form>
           </InlineStack>
@@ -145,22 +149,27 @@ function Row({ r, index }: { r: Rel; index: number }) {
 
 export default function RelationshipsList() {
   const { relationships } = useLoaderData<typeof loader>();
-  const resourceName = { singular: "componente", plural: "componentes" };
+  const { t } = useTranslation("relationships");
+  const { t: tc } = useTranslation("common");
+  const resourceName = {
+    singular: t("list.resourceSingular"),
+    plural: t("list.resourcePlural"),
+  };
 
   return (
     <Page
-      title="Componentes"
-      primaryAction={{ content: "Criar componente", url: "/app/relationships/new" }}
-      backAction={{ content: "Painel", url: "/app" }}
+      title={t("list.title")}
+      primaryAction={{ content: tc("createComponent"), url: "/app/relationships/new" }}
+      backAction={{ content: t("list.back"), url: "/app" }}
     >
       <Card padding="0">
         {relationships.length === 0 ? (
           <EmptyState
-            heading="Nenhum componente ainda"
-            action={{ content: "Criar componente", url: "/app/relationships/new" }}
+            heading={t("list.emptyHeading")}
+            action={{ content: tc("createComponent"), url: "/app/relationships/new" }}
             image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
           >
-            <p>Vincule um produto principal a produtos que combinam para comprar junto.</p>
+            <p>{t("list.emptyBody")}</p>
           </EmptyState>
         ) : (
           <IndexTable
@@ -168,12 +177,12 @@ export default function RelationshipsList() {
             itemCount={relationships.length}
             selectable={false}
             headings={[
-              { title: "Componente" },
-              { title: "Companheiros" },
-              { title: "Template" },
-              { title: "Direção" },
-              { title: "Status" },
-              { title: "Ações" },
+              { title: t("list.colComponent") },
+              { title: t("list.colCompanions") },
+              { title: t("list.colTemplate") },
+              { title: t("list.colDirection") },
+              { title: t("list.colStatus") },
+              { title: t("list.colActions") },
             ]}
           >
             {relationships.map((r, index) => (
