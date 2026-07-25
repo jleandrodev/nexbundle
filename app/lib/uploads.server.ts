@@ -3,7 +3,7 @@
  * O arquivo é salvo como <id>; nome/mime/size vão para o banco.
  */
 import { mkdirSync, createReadStream, statSync, existsSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
+import { writeFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
 
 export const UPLOAD_DIR =
@@ -31,6 +31,13 @@ export async function saveBuffer(id: string, buffer: Buffer) {
   const path = attachmentPath(id);
   await writeFile(path, buffer);
   return path;
+}
+
+/** Remove o arquivo do anexo do disco (idempotente; ignora se já não existe). */
+export async function deleteAttachmentFiles(ids: string[]) {
+  await Promise.all(
+    ids.map((id) => unlink(attachmentPath(id)).catch(() => {})),
+  );
 }
 
 export function fileStreamResponse(

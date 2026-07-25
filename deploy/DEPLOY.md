@@ -78,7 +78,7 @@ Mudou a **extensão** (blocks/js/css)? Rode `npm run deploy` do PC (vai pra Shop
 ## Suporte / chat (front da equipe em /support)
 
 O mesmo app serve o chat do lojista (widget no painel) e o **front de atendimento**
-em `https://nexbundle.homolog.live/support` (login próprio da equipe).
+em `https://nexbundle.sprezzia.live/support` (login próprio da equipe).
 
 1. No `.env.production`, defina `SUPPORT_SESSION_SECRET` (string aleatória longa) e
    `UPLOAD_DIR=/var/data/buy-together/uploads` (ver `env.production.example`).
@@ -88,7 +88,7 @@ em `https://nexbundle.homolog.live/support` (login próprio da equipe).
    npm run staff:add -- voce@n1.ag "Seu Nome" "uma-senha-forte"
    ```
    (Rode de novo para adicionar outros atendentes ou trocar a senha de um e-mail.)
-3. Acesse `https://nexbundle.homolog.live/support` → login → conversas.
+3. Acesse `https://nexbundle.sprezzia.live/support` → login → conversas.
 
 > Anexos ficam em `UPLOAD_DIR` (persistente). Servidos só por rota autenticada
 > (lojista: mesma loja; equipe: cookie de staff). Inclua o `UPLOAD_DIR` no backup.
