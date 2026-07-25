@@ -4,6 +4,7 @@
  * (opcional) os produtos escolhidos; usa amostras quando não há produtos.
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ComponentStyle, TemplateId } from "../lib/templates";
 
 export type PreviewProduct = {
@@ -11,12 +12,6 @@ export type PreviewProduct = {
   image?: string | null;
   price?: string; // já formatado (ex.: "R$ 99,90")
 };
-
-const SAMPLE_MAIN: PreviewProduct = { title: "Produto principal", price: "R$ 199,90" };
-const SAMPLE_COMPANIONS: PreviewProduct[] = [
-  { title: "Produto companheiro", price: "R$ 89,90" },
-  { title: "Outro companheiro", price: "R$ 59,90" },
-];
 
 function Thumb({ src }: { src?: string | null }) {
   return (
@@ -80,6 +75,17 @@ export default function ComponentPreview({
   main?: PreviewProduct | null;
   companions?: PreviewProduct[];
 }) {
+  const { t } = useTranslation("relationships");
+
+  const SAMPLE_MAIN: PreviewProduct = {
+    title: t("preview.mainSample"),
+    price: "R$ 199,90",
+  };
+  const SAMPLE_COMPANIONS: PreviewProduct[] = [
+    { title: t("preview.companionSample"), price: "R$ 89,90" },
+    { title: t("preview.companionSample2"), price: "R$ 59,90" },
+  ];
+
   const mainP = main && main.title ? main : SAMPLE_MAIN;
   const comps =
     companions && companions.length ? companions : SAMPLE_COMPANIONS;
@@ -150,11 +156,11 @@ export default function ComponentPreview({
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 14, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 auto" }}>
-            <div style={{ opacity: 0.75, fontSize: 13 }}>Total</div>
+            <div style={{ opacity: 0.75, fontSize: 13 }}>{t("preview.total")}</div>
             <div style={{ color: s.titleColor, fontWeight: 800, fontSize: 22 }}>{total}</div>
           </div>
           <div style={{ flex: "1 1 220px" }}>
-            <AddButton s={s} label={"Adicionar todos ao carrinho"} />
+            <AddButton s={s} label={t("preview.addAll")} />
           </div>
         </div>
       </div>
@@ -182,7 +188,7 @@ export default function ComponentPreview({
             gap: 10,
           }}
         >
-          <div style={{ opacity: 0.8, fontSize: 13 }}>Total dos dois itens</div>
+          <div style={{ opacity: 0.8, fontSize: 13 }}>{t("preview.totalTwoItems")}</div>
           <div style={{ color: s.titleColor, fontWeight: 800, fontSize: 24 }}>R$ 289,80</div>
           <AddButton s={s} />
         </div>

@@ -13,9 +13,12 @@ import {
 } from "../services/relationships.server";
 import { enrichProducts, enrichOne } from "../services/products.server";
 import { parseStyle, isTemplateId, type TemplateId } from "../lib/templates";
+import { i18n } from "../i18n/i18next.server";
 import RelationshipEditor, {
   type PickedProduct,
 } from "../components/RelationshipEditor";
+
+export const handle = { i18n: ["relationships", "templates", "common"] };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { session, admin } = await authenticate.admin(request);
@@ -82,8 +85,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (!updated) throw new Response("Not found", { status: 404 });
   } catch (e: any) {
     if (String(e?.code) === "P2002") {
+      const t = await i18n.getFixedT(request, "relationships");
       return json(
-        { error: "Já existe um componente para este produto principal." },
+        { error: t("errors.duplicate") },
         { status: 400 },
       );
     }

@@ -1,0 +1,37 @@
+{
+  "title": "Escolha seu plano",
+  "subtitle": "Todos os planos incluem {{days}} dias de teste grátis.",
+  "current": "Plano atual",
+  "active": "Plano ativo",
+  "subscribe": "Assinar {{plan}} — {{days}} dias grátis",
+  "perMonth": "/mês",
+  "unlimited": "Produtos ilimitados",
+  "upTo": "Até {{limit}} produtos",
+  "essential": {
+    "name": "Essencial",
+    "features": [
+      "Até 50 produtos com Buy Together",
+      "Layouts lado a lado e compacto",
+      "Estilo personalizável",
+      "Métricas de cliques e impressões"
+    ]
+  },
+  "pro": {
+    "name": "Pro",
+    "features": [
+      "Até 200 produtos com Buy Together",
+      "Layouts lado a lado e compacto",
+      "Estilo personalizável",
+      "Métricas de cliques e impressões"
+    ]
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "features": [
+      "Produtos com Buy Together ilimitados",
+      "Layouts lado a lado e compacto",
+      "Estilo personalizável",
+      "Métricas de cliques e impressões"
+    ]
+  }
+}

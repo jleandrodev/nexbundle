@@ -1,0 +1,29 @@
+{
+  "title": "Analytics",
+  "backAction": "Dashboard",
+  "lastDays": "Last {{days}} days",
+  "days7": "7 days",
+  "days30": "30 days",
+  "impressions": "Impressions",
+  "clicks": "Clicks (add to cart)",
+  "ctr": "CTR",
+  "chartTitle": "Impressions and clicks per day",
+  "chartSeries": {
+    "impressions": "Impressions",
+    "clicks": "Clicks"
+  },
+  "recentActivity": "Recent activity",
+  "table": {
+    "when": "When",
+    "event": "Event",
+    "product": "Product",
+    "template": "Template"
+  },
+  "event": {
+    "click": "Click",
+    "impression": "Impression"
+  },
+  "noData": "No data",
+  "noDataHint": "As soon as the widget is shown or clicked in the store, events will appear here.",
+  "dash": "—"
+}

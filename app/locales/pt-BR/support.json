@@ -1,0 +1,13 @@
+{
+  "ariaLabel": "Suporte",
+  "headerTitle": "Suporte NexBundle",
+  "subtitle": "Respondemos por aqui — fale com a gente.",
+  "emptyState": "Comece uma conversa — tire dúvidas ou relate um problema.",
+  "inputPlaceholder": "Escreva sua mensagem...",
+  "send": "Enviar",
+  "attach": "Anexar",
+  "uploadFailed": "Falha no upload",
+  "uploadNoFile": "Nenhum arquivo enviado.",
+  "uploadBadType": "Tipo de arquivo não permitido.",
+  "uploadTooLarge": "Arquivo muito grande (máx. 10MB)."
+}

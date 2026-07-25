@@ -27,3 +27,6 @@ pnpm-lock.yaml
 # Ignore shopify files created during app dev
 .shopify/*
 .shopify.lock
+
+# Anexos de chat em dev
+/uploads

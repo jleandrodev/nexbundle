@@ -26,6 +26,12 @@
     return fmt.replace(/\{\{\s*\w+\s*\}\}/, v);
   }
 
+  // Strings traduzidas injetadas pelo Liquid via data-bt-i18n-* (seguem o locale da loja).
+  function i18n(root, key, fallback) {
+    var v = root.getAttribute("data-bt-i18n-" + key);
+    return v != null && v !== "" ? v : fallback;
+  }
+
   function el(tag, cls, attrs) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -85,7 +91,7 @@
 
   function addButton(s, root, ctx, variantIds, label) {
     var b = el("button", "bt-btn", { type: "button" });
-    b.textContent = label || (s && s.addButtonText) || "Adicionar ao carrinho";
+    b.textContent = label || (s && s.addButtonText) || i18n(root, "add-cart", "Adicionar ao carrinho");
     b.addEventListener("click", function (e) {
       e.preventDefault(); e.stopPropagation();
       addToCart(root, ctx, variantIds);
@@ -128,7 +134,7 @@
     var grid = el("div", "bt-grid");
     grid.appendChild(vcard(ctx.mainProduct, mf));
     grid.appendChild(vcard(comp, mf));
-    grid.appendChild(summaryBox("Total dos dois itens", formatMoney(ctx.mainPrice + comp.price, mf), addButton(s, root, ctx, [comp.variantId])));
+    grid.appendChild(summaryBox(i18n(root, "total-two", "Total dos dois itens"), formatMoney(ctx.mainPrice + comp.price, mf), addButton(s, root, ctx, [comp.variantId])));
     root.appendChild(grid);
   }
   function renderCompact(root, data, ctx) {
@@ -148,7 +154,7 @@
     ctx.companions.forEach(function (c) { list.appendChild(rowcard(c, mf)); total += c.price; vids.push(c.variantId); });
     root.appendChild(list);
     var footer = el("div", "bt-list__footer");
-    footer.appendChild(summaryBox("Total", formatMoney(total, mf), addButton(s, root, ctx, vids, "Adicionar todos ao carrinho")));
+    footer.appendChild(summaryBox(i18n(root, "total", "Total"), formatMoney(total, mf), addButton(s, root, ctx, vids, i18n(root, "add-all", "Adicionar todos ao carrinho"))));
     root.appendChild(footer);
   }
 

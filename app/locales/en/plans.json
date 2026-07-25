@@ -1,0 +1,37 @@
+{
+  "title": "Choose your plan",
+  "subtitle": "All plans include a {{days}}-day free trial.",
+  "current": "Current plan",
+  "active": "Active plan",
+  "subscribe": "Subscribe to {{plan}} — {{days}} days free",
+  "perMonth": "/month",
+  "unlimited": "Unlimited products",
+  "upTo": "Up to {{limit}} products",
+  "essential": {
+    "name": "Essential",
+    "features": [
+      "Up to 50 products with Buy Together",
+      "Side-by-side and compact layouts",
+      "Customizable styling",
+      "Click and impression metrics"
+    ]
+  },
+  "pro": {
+    "name": "Pro",
+    "features": [
+      "Up to 200 products with Buy Together",
+      "Side-by-side and compact layouts",
+      "Customizable styling",
+      "Click and impression metrics"
+    ]
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "features": [
+      "Unlimited products with Buy Together",
+      "Side-by-side and compact layouts",
+      "Customizable styling",
+      "Click and impression metrics"
+    ]
+  }
+}

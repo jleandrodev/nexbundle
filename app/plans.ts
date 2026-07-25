@@ -14,50 +14,39 @@ export type PlanName =
 // Sentinela de "ilimitado" (JSON não serializa Infinity). Grande o bastante p/ nunca travar.
 export const UNLIMITED = 1_000_000;
 
+// Slug ESTÁVEL usado apenas para chaves de tradução (i18n). NÃO confundir com
+// `name`, que é a chave de billing e não pode mudar.
+export type PlanId = "essential" | "pro" | "enterprise";
+
 export const PLANS: Array<{
+  id: PlanId;
   name: PlanName;
   price: number;
   currency: string;
   limit: number;
   unlimited?: boolean;
-  features: string[];
 }> = [
   {
+    id: "essential",
     name: ESSENTIAL_PLAN,
     price: 6.99,
     currency: "USD",
     limit: 50,
-    features: [
-      "Até 50 produtos com Buy Together",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
-      "Métricas de cliques e impressões",
-    ],
   },
   {
+    id: "pro",
     name: PRO_PLAN,
     price: 19.99,
     currency: "USD",
     limit: 200,
-    features: [
-      "Até 200 produtos com Buy Together",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
-      "Métricas de cliques e impressões",
-    ],
   },
   {
+    id: "enterprise",
     name: ENTERPRISE_PLAN,
     price: 39.99,
     currency: "USD",
     limit: UNLIMITED,
     unlimited: true,
-    features: [
-      "Produtos com Buy Together ilimitados",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
-      "Métricas de cliques e impressões",
-    ],
   },
 ];
 

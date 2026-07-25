@@ -1,0 +1,29 @@
+{
+  "title": "Análisis",
+  "backAction": "Panel",
+  "lastDays": "Últimos {{days}} días",
+  "days7": "7 días",
+  "days30": "30 días",
+  "impressions": "Impresiones",
+  "clicks": "Clics (añadir al carrito)",
+  "ctr": "CTR",
+  "chartTitle": "Impresiones y clics por día",
+  "chartSeries": {
+    "impressions": "Impresiones",
+    "clicks": "Clics"
+  },
+  "recentActivity": "Actividad reciente",
+  "table": {
+    "when": "Cuándo",
+    "event": "Evento",
+    "product": "Producto",
+    "template": "Plantilla"
+  },
+  "event": {
+    "click": "Clic",
+    "impression": "Impresión"
+  },
+  "noData": "Sin datos",
+  "noDataHint": "En cuanto el widget se muestre o se haga clic en la tienda, los eventos aparecerán aquí.",
+  "dash": "—"
+}

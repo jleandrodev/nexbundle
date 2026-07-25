@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "Buy Together"
+  },
+  "buy_together": {
+    "loading": "Cargando sugerencia...",
+    "total": "Total",
+    "total_two": "Total de ambos productos",
+    "add_all": "Añadir todo al carrito",
+    "add_to_cart": "Añadir al carrito"
+  }
+}

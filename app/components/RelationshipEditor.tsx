@@ -5,6 +5,7 @@
  */
 import { useState, useCallback } from "react";
 import { Form, useNavigation, useSubmit } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   Page,
   Layout,
@@ -27,7 +28,6 @@ import ColorField from "./ColorField";
 import ComponentPreview, { type PreviewProduct } from "./ComponentPreview";
 import {
   DEFAULT_STYLE,
-  TEMPLATES,
   type ComponentStyle,
   type TemplateId,
 } from "../lib/templates";
@@ -86,6 +86,8 @@ export default function RelationshipEditor({
 }) {
   const nav = useNavigation();
   const submit = useSubmit();
+  const { t } = useTranslation("relationships");
+  const { t: tt } = useTranslation("templates");
   const submitting = nav.state === "submitting";
 
   const [name, setName] = useState(value.name || "");
@@ -112,30 +114,34 @@ export default function RelationshipEditor({
   const removeCompanion = (id: string) =>
     setCompanions((prev) => prev.filter((c) => c.productId !== id));
 
-  const templateMeta = TEMPLATES.find((t) => t.id === value.template) || TEMPLATES[0];
+  const templateName = tt(`${value.template}.name`);
   const canSubmit = Boolean(main) && companions.length > 0 && !submitting;
 
   const onDelete = () => {
-    if (confirm("Excluir este componente? Esta ação não pode ser desfeita.")) {
+    if (confirm(t("editor.confirmDelete"))) {
       submit({ intent: "delete" }, { method: "post" });
     }
   };
 
   const tabs = [
-    { id: "config", content: "Configurações" },
-    { id: "style", content: "Estilo" },
+    { id: "config", content: t("editor.tabConfig") },
+    { id: "style", content: t("editor.tabStyle") },
   ];
 
   return (
     <Page
-      title={mode === "create" ? `Novo: ${templateMeta.name}` : `Editar: ${templateMeta.name}`}
+      title={
+        mode === "create"
+          ? t("editor.titleCreate", { name: templateName })
+          : t("editor.titleEdit", { name: templateName })
+      }
       backAction={{
-        content: mode === "create" ? "Templates" : "Relacionamentos",
+        content: mode === "create" ? t("editor.backTemplates") : t("editor.backRelationships"),
         url: mode === "create" ? "/app/relationships/new" : "/app/relationships",
       }}
       secondaryActions={
         mode === "edit"
-          ? [{ content: "Excluir", destructive: true, onAction: onDelete }]
+          ? [{ content: t("editor.delete"), destructive: true, onAction: onDelete }]
           : undefined
       }
     >
@@ -150,7 +156,7 @@ export default function RelationshipEditor({
 
         <BlockStack gap="400">
           {actionError ? (
-            <Banner tone="critical" title="Não foi possível salvar">
+            <Banner tone="critical" title={t("editor.saveError")}>
               <p>{actionError}</p>
             </Banner>
           ) : null}
@@ -161,7 +167,7 @@ export default function RelationshipEditor({
               <Card>
                 <BlockStack gap="300">
                   <Text as="h3" variant="headingMd">
-                    Pré-visualização
+                    {t("editor.previewHeading")}
                   </Text>
                   <Box background="bg-surface-secondary" padding="400" borderRadius="300">
                     <ComponentPreview
@@ -172,8 +178,7 @@ export default function RelationshipEditor({
                     />
                   </Box>
                   <Text as="span" tone="subdued" variant="bodySm">
-                    O preview usa amostras quando não há produtos escolhidos. A posição
-                    real na loja é definida ao arrastar o bloco no editor de tema.
+                    {t("editor.previewHelp")}
                   </Text>
                 </BlockStack>
               </Card>
@@ -187,19 +192,19 @@ export default function RelationshipEditor({
                     {tab === 0 ? (
                       <BlockStack gap="400">
                         <TextField
-                          label="Nome do componente"
+                          label={t("editor.nameLabel")}
                           value={name}
                           onChange={setName}
                           autoComplete="off"
-                          placeholder="Ex.: Shampoo + Condicionador"
-                          helpText="Só para identificar na listagem. Se vazio, usa o nome do produto principal."
+                          placeholder={t("editor.namePlaceholder")}
+                          helpText={t("editor.nameHelp")}
                         />
 
                         <Divider />
 
                         <BlockStack gap="200">
                           <Text as="h4" variant="headingSm">
-                            Produto principal
+                            {t("editor.mainProduct")}
                           </Text>
                           {main ? (
                             <InlineStack gap="300" blockAlign="center" align="space-between">
@@ -210,11 +215,11 @@ export default function RelationshipEditor({
                                 </Text>
                               </InlineStack>
                               <Button variant="tertiary" onClick={pickMain}>
-                                Trocar
+                                {t("editor.swap")}
                               </Button>
                             </InlineStack>
                           ) : (
-                            <Button onClick={pickMain}>Selecionar principal</Button>
+                            <Button onClick={pickMain}>{t("editor.selectMain")}</Button>
                           )}
                         </BlockStack>
 
@@ -223,15 +228,15 @@ export default function RelationshipEditor({
                         <BlockStack gap="200">
                           <InlineStack align="space-between" blockAlign="center">
                             <Text as="h4" variant="headingSm">
-                              Companheiros
+                              {t("editor.companions")}
                             </Text>
                             <Button onClick={pickCompanions} disabled={!main} variant="tertiary">
-                              {companions.length ? "Editar" : "Selecionar"}
+                              {companions.length ? t("editor.edit") : t("editor.select")}
                             </Button>
                           </InlineStack>
                           {companions.length === 0 ? (
                             <Text as="span" tone="subdued" variant="bodySm">
-                              Selecione ao menos um produto companheiro.
+                              {t("editor.companionsEmpty")}
                             </Text>
                           ) : (
                             companions.map((c) => (
@@ -252,7 +257,7 @@ export default function RelationshipEditor({
                                   tone="critical"
                                   onClick={() => removeCompanion(c.productId)}
                                 >
-                                  Remover
+                                  {t("editor.remove")}
                                 </Button>
                               </InlineStack>
                             ))
@@ -262,18 +267,17 @@ export default function RelationshipEditor({
                         <Divider />
 
                         <ChoiceList
-                          title="Direção"
+                          title={t("editor.directionTitle")}
                           choices={[
                             {
-                              label: "Unidirecional",
+                              label: t("direction.uni"),
                               value: "uni",
-                              helpText: "Aparece só na página do produto principal.",
+                              helpText: t("editor.directionUniHelp"),
                             },
                             {
-                              label: "Bidirecional",
+                              label: t("direction.bi"),
                               value: "bi",
-                              helpText:
-                                "Aparece nos dois: o principal sugere o companheiro e vice-versa.",
+                              helpText: t("editor.directionBiHelp"),
                             },
                           ]}
                           selected={[direction]}
@@ -281,21 +285,21 @@ export default function RelationshipEditor({
                         />
 
                         <Checkbox
-                          label="Ativo"
+                          label={t("editor.activeLabel")}
                           checked={enabled}
                           onChange={setEnabled}
-                          helpText="Desative para esconder sem apagar."
+                          helpText={t("editor.activeHelp")}
                         />
                       </BlockStack>
                     ) : (
                       <BlockStack gap="400">
                         <ColorField
-                          label="Fundo"
+                          label={t("editor.styleBackground")}
                           value={style.backgroundColor}
                           onChange={(v) => setS("backgroundColor", v)}
                         />
                         <ColorField
-                          label="Texto"
+                          label={t("editor.styleText")}
                           value={style.textColor}
                           onChange={(v) => setS("textColor", v)}
                         />
@@ -303,25 +307,25 @@ export default function RelationshipEditor({
                         <Divider />
 
                         <Checkbox
-                          label="Mostrar título da seção"
+                          label={t("editor.showTitle")}
                           checked={style.showTitle}
                           onChange={(v) => setS("showTitle", v)}
                         />
                         {style.showTitle ? (
                           <>
                             <TextField
-                              label="Texto do título"
+                              label={t("editor.titleTextLabel")}
                               value={style.titleText}
                               onChange={(v) => setS("titleText", v)}
                               autoComplete="off"
                             />
                             <ColorField
-                              label="Cor do título"
+                              label={t("editor.titleColor")}
                               value={style.titleColor}
                               onChange={(v) => setS("titleColor", v)}
                             />
                             <RangeSlider
-                              label={`Tamanho do título: ${style.titleSize}px`}
+                              label={t("editor.titleSize", { size: style.titleSize })}
                               min={12}
                               max={40}
                               value={style.titleSize}
@@ -334,22 +338,22 @@ export default function RelationshipEditor({
                         <Divider />
 
                         <ColorField
-                          label="Botão"
+                          label={t("editor.button")}
                           value={style.buttonColor}
                           onChange={(v) => setS("buttonColor", v)}
                         />
                         <ColorField
-                          label="Botão (hover)"
+                          label={t("editor.buttonHover")}
                           value={style.buttonHoverColor}
                           onChange={(v) => setS("buttonHoverColor", v)}
                         />
                         <ColorField
-                          label="Texto do botão"
+                          label={t("editor.buttonTextColor")}
                           value={style.buttonTextColor}
                           onChange={(v) => setS("buttonTextColor", v)}
                         />
                         <TextField
-                          label="Rótulo do botão"
+                          label={t("editor.buttonLabel")}
                           value={style.addButtonText}
                           onChange={(v) => setS("addButtonText", v)}
                           autoComplete="off"
@@ -358,7 +362,7 @@ export default function RelationshipEditor({
                         <Divider />
 
                         <Checkbox
-                          label="Cards com borda"
+                          label={t("editor.cardBorder")}
                           checked={style.cardBorder}
                           onChange={(v) => setS("cardBorder", v)}
                         />
@@ -376,7 +380,7 @@ export default function RelationshipEditor({
                   disabled={!canSubmit}
                   loading={submitting}
                 >
-                  Salvar componente
+                  {t("editor.save")}
                 </Button>
               </Box>
             </Layout.Section>

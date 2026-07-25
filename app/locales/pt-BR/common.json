@@ -1,0 +1,14 @@
+{
+  "createComponent": "Criar componente",
+  "viewComponents": "Ver componentes",
+  "save": "Salvar",
+  "choose": "Escolher",
+  "change": "Mudar",
+  "language": "Idioma",
+  "languageHelp": "Idioma do painel do app.",
+  "templates": {
+    "side-by-side": "Lado a lado",
+    "list": "Lista",
+    "compact": "Compacto"
+  }
+}

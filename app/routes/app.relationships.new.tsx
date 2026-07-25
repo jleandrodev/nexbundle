@@ -4,6 +4,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 import {
   Page,
   Layout,
@@ -16,6 +17,8 @@ import {
 import { authenticate } from "../shopify.server";
 import { TEMPLATES } from "../lib/templates";
 
+export const handle = { i18n: ["relationships", "templates", "common"] };
+
 export async function loader({ request }: LoaderFunctionArgs) {
   await authenticate.admin(request);
   return json({ templates: TEMPLATES });
@@ -24,16 +27,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function TemplateGallery() {
   const { templates } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useTranslation("relationships");
+  const { t: tt } = useTranslation("templates");
 
   return (
     <Page
-      title="Escolha um template"
-      subtitle="Selecione o formato do componente. Você personaliza o estilo em seguida."
-      backAction={{ content: "Relacionamentos", url: "/app/relationships" }}
+      title={t("gallery.title")}
+      subtitle={t("gallery.subtitle")}
+      backAction={{ content: t("gallery.back"), url: "/app/relationships" }}
     >
       <Layout>
-        {templates.map((t) => (
-          <Layout.Section variant="oneThird" key={t.id}>
+        {templates.map((tpl) => (
+          <Layout.Section variant="oneThird" key={tpl.id}>
             <Card padding="0">
               <BlockStack gap="0">
                 {/* Imagem do template (placeholder até o usuário enviar as artes) */}
@@ -49,26 +54,26 @@ export default function TemplateGallery() {
                     fontSize: 13,
                     borderTopLeftRadius: 12,
                     borderTopRightRadius: 12,
-                    backgroundImage: t.image ? `url(${t.image})` : undefined,
+                    backgroundImage: tpl.image ? `url(${tpl.image})` : undefined,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
                 >
-                  {t.image ? "" : "Prévia do template"}
+                  {tpl.image ? "" : t("gallery.previewPlaceholder")}
                 </div>
                 <Box padding="400">
                   <BlockStack gap="200">
                     <Text as="h3" variant="headingMd">
-                      {t.name}
+                      {tt(`${tpl.id}.name`)}
                     </Text>
                     <Text as="p" tone="subdued">
-                      {t.description}
+                      {tt(`${tpl.id}.description`)}
                     </Text>
                     <Button
                       variant="primary"
-                      onClick={() => navigate(`/app/relationships/create/${t.id}`)}
+                      onClick={() => navigate(`/app/relationships/create/${tpl.id}`)}
                     >
-                      Usar este template
+                      {t("gallery.useTemplate")}
                     </Button>
                   </BlockStack>
                 </Box>

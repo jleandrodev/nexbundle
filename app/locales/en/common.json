@@ -1,0 +1,14 @@
+{
+  "createComponent": "Create component",
+  "viewComponents": "View components",
+  "save": "Save",
+  "choose": "Choose",
+  "change": "Change",
+  "language": "Language",
+  "languageHelp": "Language of the app panel.",
+  "templates": {
+    "side-by-side": "Side by side",
+    "list": "List",
+    "compact": "Compact"
+  }
+}

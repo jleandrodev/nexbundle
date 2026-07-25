@@ -1,0 +1,37 @@
+{
+  "title": "Elige tu plan",
+  "subtitle": "Todos los planes incluyen {{days}} días de prueba gratis.",
+  "current": "Plan actual",
+  "active": "Plan activo",
+  "subscribe": "Suscribirse a {{plan}} — {{days}} días gratis",
+  "perMonth": "/mes",
+  "unlimited": "Productos ilimitados",
+  "upTo": "Hasta {{limit}} productos",
+  "essential": {
+    "name": "Esencial",
+    "features": [
+      "Hasta 50 productos con Buy Together",
+      "Diseños lado a lado y compacto",
+      "Estilo personalizable",
+      "Métricas de clics e impresiones"
+    ]
+  },
+  "pro": {
+    "name": "Pro",
+    "features": [
+      "Hasta 200 productos con Buy Together",
+      "Diseños lado a lado y compacto",
+      "Estilo personalizable",
+      "Métricas de clics e impresiones"
+    ]
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "features": [
+      "Productos con Buy Together ilimitados",
+      "Diseños lado a lado y compacto",
+      "Estilo personalizable",
+      "Métricas de clics e impresiones"
+    ]
+  }
+}

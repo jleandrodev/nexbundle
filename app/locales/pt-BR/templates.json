@@ -1,0 +1,14 @@
+{
+  "side-by-side": {
+    "name": "Produtos lado a lado",
+    "description": "Cards dos dois produtos no formato de vitrine e uma coluna com o total e o botão."
+  },
+  "list": {
+    "name": "Lista de produtos",
+    "description": "Lista vertical dos produtos que combinam, com o total e um botão para levar tudo."
+  },
+  "compact": {
+    "name": "Compacto",
+    "description": "Faixa enxuta com o produto sugerido e o botão — ideal perto do botão comprar."
+  }
+}
