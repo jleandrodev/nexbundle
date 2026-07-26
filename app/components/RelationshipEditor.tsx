@@ -162,6 +162,7 @@ export default function RelationshipEditor({
 
   return (
     <Page
+      fullWidth
       title={
         mode === "create"
           ? t("editor.titleCreate", { name: templateName })
@@ -211,7 +212,6 @@ export default function RelationshipEditor({
                       companions={companions.map((c) => toPreview(c)!).filter(Boolean)}
                       discount={discount}
                       currency={currency}
-                      onAddProducts={main ? pickCompanions : pickMain}
                     />
                   </Box>
                   <Text as="span" tone="subdued" variant="bodySm">

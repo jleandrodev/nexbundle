@@ -28,51 +28,9 @@ export type PreviewProduct = {
   optionSample?: Record<string, string>; // valor mostrado no select do preview
 };
 
-/* CSS exclusivo do painel: os affordances que não vão para a loja. */
+/* CSS exclusivo do painel. */
 const ADMIN_CSS = `
 .bt-preview { container-type: inline-size; }
-.bt-add {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex: 0 0 120px;
-  aspect-ratio: 1 / 1;
-  padding: 12px;
-  border: 1.5px dashed var(--bt-btn);
-  border-radius: var(--bt-radius);
-  background: var(--bt-media-bg);
-  color: var(--bt-text);
-  font-size: 12px;
-  text-align: center;
-  cursor: pointer;
-}
-.bt-add:hover { background: rgba(79, 70, 229, 0.1); }
-.bt-add__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: var(--bt-btn);
-  color: var(--bt-btn-text);
-  font-size: 20px;
-  line-height: 1;
-}
-.bt-add-link {
-  display: block;
-  width: 100%;
-  margin: 10px 0 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--bt-text);
-  font-size: 13px;
-  text-decoration: underline;
-  cursor: pointer;
-}
 `;
 
 const CHECK_SVG = (
@@ -113,7 +71,6 @@ export default function ComponentPreview({
   discount,
   currency = "BRL",
   locale,
-  onAddProducts,
 }: {
   template: TemplateId;
   style: ComponentStyle;
@@ -122,7 +79,6 @@ export default function ComponentPreview({
   discount?: BundleDiscount | null;
   currency?: string;
   locale?: string;
-  onAddProducts?: () => void;
 }) {
   const { t, i18n } = useTranslation("relationships");
 
@@ -134,7 +90,6 @@ export default function ComponentPreview({
   };
   const SAMPLE_COMPANIONS: PreviewProduct[] = [
     { title: t("preview.companionSample"), price: 8990 },
-    { title: t("preview.companionSample2"), price: 5990 },
   ];
 
   const mainP = main && main.title ? main : SAMPLE_MAIN;
@@ -346,12 +301,6 @@ export default function ComponentPreview({
                   <Card line={line} index={i} />
                 </Fragment>
               ))}
-              {onAddProducts ? (
-                <button type="button" className="bt-add" onClick={onAddProducts}>
-                  <span className="bt-add__icon">+</span>
-                  <span>{t("preview.addMore")}</span>
-                </button>
-              ) : null}
             </div>
             <Summary variant="aside" />
           </div>
@@ -367,11 +316,6 @@ export default function ComponentPreview({
                 </Fragment>
               ))}
             </div>
-            {onAddProducts ? (
-              <button type="button" className="bt-add-link" onClick={onAddProducts}>
-                {t("preview.viewMoreOptions")}
-              </button>
-            ) : null}
             <Summary variant="footer" />
           </>
         ) : null}
