@@ -1,0 +1,17 @@
+api_version = "2025-01"
+
+[[extensions]]
+name = "Buy Together Discount"
+handle = "buy-together-discount"
+uid = "a6bc8bde-5d84-2d77-05ff-42438e8616a61c48d065"
+type = "function"
+description = "Aplica o desconto do bundle nas linhas marcadas com a propriedade _bt_bundle."
+
+  [[extensions.targeting]]
+  target = "purchase.product-discount.run"
+  input_query = "src/run.graphql"
+  export = "run"
+
+  [extensions.build]
+  command = "npm run build"
+  path = "dist/function.wasm"

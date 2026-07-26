@@ -11,6 +11,8 @@ import {
   parseRelationshipForm,
 } from "../services/relationships.server";
 import { getEntitlement } from "../services/billing.server";
+import { syncBundleDiscountSafe } from "../services/discounts.server";
+import { getShopCurrency } from "../services/products.server";
 import { isUnlimited } from "../plans";
 import { isTemplateId, DEFAULT_STYLE, type TemplateId } from "../lib/templates";
 import { i18n } from "../i18n/i18next.server";
@@ -19,10 +21,11 @@ import RelationshipEditor from "../components/RelationshipEditor";
 export const handle = { i18n: ["relationships", "templates", "common"] };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   const template = params.template || "";
   if (!isTemplateId(template)) throw redirect("/app/relationships/new");
-  return json({ template: template as TemplateId });
+  const currency = await getShopCurrency(admin);
+  return json({ template: template as TemplateId, currency });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -46,6 +49,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await createRelationship(session.shop, parsed.value);
+    // Desconto do bundle: registra/atualiza o desconto automático da Function.
+    await syncBundleDiscountSafe(ctx.admin, session.shop);
   } catch (e: any) {
     if (String(e?.code) === "P2002") {
       return json(
@@ -59,11 +64,12 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function CreateRelationship() {
-  const { template } = useLoaderData<typeof loader>();
+  const { template, currency } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   return (
     <RelationshipEditor
       mode="create"
+      currency={currency}
       actionError={actionData?.error}
       value={{
         name: "",
@@ -72,6 +78,7 @@ export default function CreateRelationship() {
         template,
         direction: "uni",
         enabled: true,
+        discount: { type: "none", value: 0 },
         style: { ...DEFAULT_STYLE },
       }}
     />

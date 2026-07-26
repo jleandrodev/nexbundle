@@ -24,6 +24,7 @@ import {
   deleteRelationship,
 } from "../services/relationships.server";
 import { enrichProducts } from "../services/products.server";
+import { syncBundleDiscountSafe } from "../services/discounts.server";
 
 export const handle = { i18n: ["relationships", "templates", "common"] };
 
@@ -58,7 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const form = await request.formData();
   const intent = form.get("intent");
   const id = String(form.get("id") || "");
@@ -67,6 +68,8 @@ export async function action({ request }: ActionFunctionArgs) {
   } else if (intent === "delete") {
     await deleteRelationship(session.shop, id);
   }
+  // Ativar/desativar/excluir muda quais bundles entram na config do desconto.
+  await syncBundleDiscountSafe(admin, session.shop);
   return json({ ok: true });
 }
 

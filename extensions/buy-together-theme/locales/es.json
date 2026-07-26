@@ -5,8 +5,13 @@
   "buy_together": {
     "loading": "Cargando sugerencia...",
     "total": "Total",
+    "total_price": "Precio total",
     "total_two": "Total de ambos productos",
+    "you_save": "Ahorras {{amount}} ({{percent}}%)",
     "add_all": "Añadir todo al carrito",
-    "add_to_cart": "Añadir al carrito"
+    "add_to_cart": "Añadir al carrito",
+    "buy_now": "Comprar ahora",
+    "increase": "Aumentar cantidad",
+    "decrease": "Reducir cantidad"
   }
 }

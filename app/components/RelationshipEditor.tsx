@@ -23,12 +23,16 @@ import {
   Banner,
   Divider,
   Tabs,
+  Select,
 } from "@shopify/polaris";
 import ColorField from "./ColorField";
 import ComponentPreview, { type PreviewProduct } from "./ComponentPreview";
 import {
   DEFAULT_STYLE,
+  NO_DISCOUNT,
+  type BundleDiscount,
   type ComponentStyle,
+  type DiscountType,
   type TemplateId,
 } from "../lib/templates";
 
@@ -37,6 +41,9 @@ export type PickedProduct = {
   variantId?: string | null;
   title: string;
   image?: string | null;
+  price?: number | null; // centavos — alimenta o total do preview
+  compareAtPrice?: number | null; // centavos
+  optionNames?: string[]; // ex.: ["Cor"] — mostra o seletor de variante no preview
 };
 
 export type EditorValue = {
@@ -47,6 +54,7 @@ export type EditorValue = {
   template: TemplateId;
   direction: string;
   enabled: boolean;
+  discount: BundleDiscount;
   style: ComponentStyle;
 };
 
@@ -61,28 +69,51 @@ declare global {
   }
 }
 
+function toCents(v: unknown): number | null {
+  if (v == null || v === "") return null;
+  const n = Math.round(parseFloat(String(v)) * 100);
+  return isNaN(n) ? null : n;
+}
+
 function fromPicker(sel: any[]): PickedProduct[] {
-  return (sel || []).map((p) => ({
-    productId: p.id,
-    variantId: p.variants?.[0]?.id ?? null,
-    title: p.title,
-    image: p.images?.[0]?.originalSrc || p.images?.[0]?.url || null,
-  }));
+  return (sel || []).map((p) => {
+    const variant = p.variants?.[0];
+    return {
+      productId: p.id,
+      variantId: variant?.id ?? null,
+      title: p.title,
+      image: p.images?.[0]?.originalSrc || p.images?.[0]?.url || null,
+      price: toCents(variant?.price),
+      compareAtPrice: toCents(variant?.compareAtPrice),
+      // O picker traz "Cor / P" em variants[0].title quando o produto tem opções.
+      optionNames: (p.options || [])
+        .map((o: any) => (typeof o === "string" ? o : o?.name))
+        .filter(Boolean),
+    };
+  });
 }
 
 function toPreview(p?: PickedProduct | null): PreviewProduct | null {
   if (!p) return null;
-  return { title: p.title, image: p.image };
+  return {
+    title: p.title,
+    image: p.image,
+    price: p.price ?? null,
+    compareAtPrice: p.compareAtPrice ?? null,
+    optionNames: p.optionNames,
+  };
 }
 
 export default function RelationshipEditor({
   value,
   mode,
   actionError,
+  currency,
 }: {
   value: EditorValue;
   mode: "create" | "edit";
   actionError?: string | null;
+  currency?: string;
 }) {
   const nav = useNavigation();
   const submit = useSubmit();
@@ -96,6 +127,7 @@ export default function RelationshipEditor({
   const [direction, setDirection] = useState(value.direction || "uni");
   const [enabled, setEnabled] = useState(value.enabled);
   const [style, setStyle] = useState<ComponentStyle>({ ...DEFAULT_STYLE, ...value.style });
+  const [discount, setDiscount] = useState<BundleDiscount>(value.discount || { ...NO_DISCOUNT });
   const [tab, setTab] = useState(0);
 
   const setS = <K extends keyof ComponentStyle>(k: K, v: ComponentStyle[K]) =>
@@ -152,6 +184,8 @@ export default function RelationshipEditor({
         <input type="hidden" name="template" value={value.template} />
         <input type="hidden" name="direction" value={direction} />
         <input type="hidden" name="enabled" value={enabled ? "1" : "0"} />
+        <input type="hidden" name="discountType" value={discount.type} />
+        <input type="hidden" name="discountValue" value={String(discount.value)} />
         <input type="hidden" name="style" value={JSON.stringify(style)} />
 
         <BlockStack gap="400">
@@ -175,6 +209,9 @@ export default function RelationshipEditor({
                       style={style}
                       main={toPreview(main)}
                       companions={companions.map((c) => toPreview(c)!).filter(Boolean)}
+                      discount={discount}
+                      currency={currency}
+                      onAddProducts={main ? pickCompanions : pickMain}
                     />
                   </Box>
                   <Text as="span" tone="subdued" variant="bodySm">
@@ -284,6 +321,56 @@ export default function RelationshipEditor({
                           onChange={(v) => setDirection(v[0] || "uni")}
                         />
 
+                        <Divider />
+
+                        {/* Desconto do bundle: aparece no componente e é aplicado no
+                            checkout pela Shopify Function (extensions/buy-together-discount). */}
+                        <BlockStack gap="200">
+                          <Text as="h4" variant="headingSm">
+                            {t("editor.discountTitle")}
+                          </Text>
+                          <Select
+                            label={t("editor.discountTypeLabel")}
+                            options={[
+                              { label: t("discount.none"), value: "none" },
+                              { label: t("discount.percentage"), value: "percentage" },
+                              { label: t("discount.fixed"), value: "fixed" },
+                            ]}
+                            value={discount.type}
+                            onChange={(v) =>
+                              setDiscount((prev) => ({
+                                type: v as DiscountType,
+                                value: v === "none" ? 0 : prev.value,
+                              }))
+                            }
+                          />
+                          {discount.type !== "none" ? (
+                            <TextField
+                              label={
+                                discount.type === "percentage"
+                                  ? t("editor.discountPercentLabel")
+                                  : t("editor.discountFixedLabel")
+                              }
+                              type="number"
+                              min={0}
+                              max={discount.type === "percentage" ? 100 : undefined}
+                              step={discount.type === "percentage" ? 1 : 0.01}
+                              suffix={discount.type === "percentage" ? "%" : currency}
+                              value={String(discount.value)}
+                              onChange={(v) =>
+                                setDiscount((prev) => ({
+                                  ...prev,
+                                  value: Math.max(0, parseFloat(v.replace(",", ".")) || 0),
+                                }))
+                              }
+                              autoComplete="off"
+                              helpText={t("editor.discountHelp")}
+                            />
+                          ) : null}
+                        </BlockStack>
+
+                        <Divider />
+
                         <Checkbox
                           label={t("editor.activeLabel")}
                           checked={enabled}
@@ -359,8 +446,35 @@ export default function RelationshipEditor({
                           autoComplete="off"
                         />
 
+                        <Checkbox
+                          label={t("editor.showBuyNow")}
+                          checked={style.showBuyNow}
+                          onChange={(v) => setS("showBuyNow", v)}
+                          helpText={t("editor.showBuyNowHelp")}
+                        />
+                        {style.showBuyNow ? (
+                          <TextField
+                            label={t("editor.buyNowLabel")}
+                            value={style.buyNowText}
+                            onChange={(v) => setS("buyNowText", v)}
+                            autoComplete="off"
+                          />
+                        ) : null}
+
                         <Divider />
 
+                        <Checkbox
+                          label={t("editor.showQuantity")}
+                          checked={style.showQuantity}
+                          onChange={(v) => setS("showQuantity", v)}
+                          helpText={t("editor.showQuantityHelp")}
+                        />
+                        <Checkbox
+                          label={t("editor.showVariantPicker")}
+                          checked={style.showVariantPicker}
+                          onChange={(v) => setS("showVariantPicker", v)}
+                          helpText={t("editor.showVariantPickerHelp")}
+                        />
                         <Checkbox
                           label={t("editor.cardBorder")}
                           checked={style.cardBorder}

@@ -28,6 +28,11 @@
     "uni": "Unidirecional",
     "bi": "Bidirecional"
   },
+  "discount": {
+    "none": "Sem desconto",
+    "percentage": "Porcentagem (%)",
+    "fixed": "Valor fixo"
+  },
   "status": {
     "active": "Ativo",
     "inactive": "Inativo"
@@ -59,6 +64,11 @@
     "directionBiHelp": "Aparece nos dois: o principal sugere o companheiro e vice-versa.",
     "activeLabel": "Ativo",
     "activeHelp": "Desative para esconder sem apagar.",
+    "discountTitle": "Desconto do bundle",
+    "discountTypeLabel": "Tipo de desconto",
+    "discountPercentLabel": "Desconto",
+    "discountFixedLabel": "Valor do desconto",
+    "discountHelp": "Aplicado no checkout quando o cliente leva 2 ou mais itens do componente.",
     "styleBackground": "Fundo",
     "styleText": "Texto",
     "showTitle": "Mostrar título da seção",
@@ -69,6 +79,13 @@
     "buttonHover": "Botão (hover)",
     "buttonTextColor": "Texto do botão",
     "buttonLabel": "Rótulo do botão",
+    "showBuyNow": "Mostrar botão \"comprar agora\"",
+    "showBuyNowHelp": "Adiciona ao carrinho e leva direto ao checkout.",
+    "buyNowLabel": "Rótulo do \"comprar agora\"",
+    "showQuantity": "Mostrar seletor de quantidade",
+    "showQuantityHelp": "Stepper − 1 + em cada item.",
+    "showVariantPicker": "Mostrar seletor de variante",
+    "showVariantPickerHelp": "Deixa o cliente trocar cor/tamanho sem sair da página.",
     "cardBorder": "Cards com borda",
     "save": "Salvar componente",
     "confirmDelete": "Excluir este componente? Esta ação não pode ser desfeita."
@@ -77,9 +94,15 @@
     "mainSample": "Produto principal",
     "companionSample": "Produto companheiro",
     "companionSample2": "Outro companheiro",
+    "optionSample": "Preto",
     "total": "Total",
+    "totalPrice": "Preço total",
     "totalTwoItems": "Total dos dois itens",
-    "addAll": "Adicionar todos ao carrinho"
+    "youSave": "Você economiza {{amount}} ({{percent}}%)",
+    "addAll": "Adicionar todos ao carrinho",
+    "buyNow": "Comprar agora",
+    "addMore": "Adicionar mais produtos",
+    "viewMoreOptions": "Ver mais opções"
   },
   "errors": {
     "limitReached": "Você atingiu o limite do seu plano ({{limit}} produtos). Faça upgrade em \"Planos\".",

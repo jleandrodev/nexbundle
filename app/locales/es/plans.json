@@ -11,8 +11,9 @@
     "name": "Esencial",
     "features": [
       "Hasta 50 productos con Buy Together",
-      "Diseños lado a lado y compacto",
-      "Estilo personalizable",
+      "Diseños lado a lado, lista y compacto",
+      "Descuento del kit aplicado en el checkout",
+      "Estilo personalizable, sin código",
       "Métricas de clics e impresiones"
     ]
   },
@@ -20,8 +21,9 @@
     "name": "Pro",
     "features": [
       "Hasta 200 productos con Buy Together",
-      "Diseños lado a lado y compacto",
-      "Estilo personalizable",
+      "Diseños lado a lado, lista y compacto",
+      "Descuento del kit aplicado en el checkout",
+      "Estilo personalizable, sin código",
       "Métricas de clics e impresiones"
     ]
   },
@@ -29,8 +31,9 @@
     "name": "Enterprise",
     "features": [
       "Productos con Buy Together ilimitados",
-      "Diseños lado a lado y compacto",
-      "Estilo personalizable",
+      "Diseños lado a lado, lista y compacto",
+      "Descuento del kit aplicado en el checkout",
+      "Estilo personalizable, sin código",
       "Métricas de clics e impresiones"
     ]
   }

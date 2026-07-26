@@ -48,9 +48,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     enabled: true,
+    // Id do relacionamento: vai como propriedade de linha (_bt_bundle) no /cart/add.js
+    // e é a chave que a Shopify Function usa para achar o desconto do bundle.
+    relationshipId: resolved.id,
     mainProductId,
     template: resolved.template, // side-by-side | list | compact
     style: parseStyle(resolved.style), // estilo por componente (mesclado com defaults)
+    discount: resolved.discount, // { type, value } — o front só EXIBE; quem aplica é a Function
     mainProduct,
     companions: usable,
   });

@@ -11,8 +11,9 @@
     "name": "Essential",
     "features": [
       "Up to 50 products with Buy Together",
-      "Side-by-side and compact layouts",
-      "Customizable styling",
+      "Side-by-side, list and compact layouts",
+      "Bundle discount applied at checkout",
+      "Customizable styling, no code",
       "Click and impression metrics"
     ]
   },
@@ -20,8 +21,9 @@
     "name": "Pro",
     "features": [
       "Up to 200 products with Buy Together",
-      "Side-by-side and compact layouts",
-      "Customizable styling",
+      "Side-by-side, list and compact layouts",
+      "Bundle discount applied at checkout",
+      "Customizable styling, no code",
       "Click and impression metrics"
     ]
   },
@@ -29,8 +31,9 @@
     "name": "Enterprise",
     "features": [
       "Unlimited products with Buy Together",
-      "Side-by-side and compact layouts",
-      "Customizable styling",
+      "Side-by-side, list and compact layouts",
+      "Bundle discount applied at checkout",
+      "Customizable styling, no code",
       "Click and impression metrics"
     ]
   }

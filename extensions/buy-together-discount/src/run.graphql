@@ -1,0 +1,23 @@
+query RunInput {
+  cart {
+    lines {
+      id
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+      }
+      # Propriedade de linha gravada pelo storefront no /cart/add.js.
+      # Vale o id do relacionamento (Relationship.id) — a chave da config.
+      bundle: attribute(key: "_bt_bundle") {
+        value
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "$app:buy-together", key: "function-configuration") {
+      value
+    }
+  }
+}

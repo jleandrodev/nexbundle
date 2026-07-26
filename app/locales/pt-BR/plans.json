@@ -11,8 +11,9 @@
     "name": "Essencial",
     "features": [
       "Até 50 produtos com Buy Together",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
+      "Layouts lado a lado, lista e compacto",
+      "Desconto do kit aplicado no checkout",
+      "Estilo personalizável, sem código",
       "Métricas de cliques e impressões"
     ]
   },
@@ -20,8 +21,9 @@
     "name": "Pro",
     "features": [
       "Até 200 produtos com Buy Together",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
+      "Layouts lado a lado, lista e compacto",
+      "Desconto do kit aplicado no checkout",
+      "Estilo personalizável, sem código",
       "Métricas de cliques e impressões"
     ]
   },
@@ -29,8 +31,9 @@
     "name": "Enterprise",
     "features": [
       "Produtos com Buy Together ilimitados",
-      "Layouts lado a lado e compacto",
-      "Estilo personalizável",
+      "Layouts lado a lado, lista e compacto",
+      "Desconto do kit aplicado no checkout",
+      "Estilo personalizável, sem código",
       "Métricas de cliques e impressões"
     ]
   }

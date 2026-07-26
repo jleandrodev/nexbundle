@@ -9,10 +9,11 @@
  * URL canônica de produção: https://nexbundle.sprezzia.live/legal/terms
  *
  * TODO(owner): antes do lançamento, revise TODO o texto com um advogado e preencha
- * os placeholders: [RAZÃO SOCIAL], [CNPJ], [ENDEREÇO], [DATA], [FORO] e confirme
- * o e-mail de contato (suporte@nexbundle.sprezzia.live).
+ * os placeholders: [RAZÃO SOCIAL], [CNPJ], [ENDEREÇO], [FORO] e confirme o e-mail
+ * de contato (suporte@nexbundle.sprezzia.live). A data de "última atualização" é
+ * editada à mão aqui em `lastUpdated` sempre que o texto mudar.
  */
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
@@ -31,8 +32,40 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({ lng });
 }
 
+/** SEO: título/descrição seguem o idioma resolvido no loader. */
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const lng = data?.lng ?? "en";
+  const byLng = {
+    en: {
+      title: "Terms of Service | NexBundle",
+      description:
+        "The terms that govern the use of NexBundle, the buy-together app for Shopify stores: subscription, billing, support and liability.",
+    },
+    "pt-BR": {
+      title: "Termos de Serviço | NexBundle",
+      description:
+        "Os termos que regem o uso do NexBundle, o app de compre junto para lojas Shopify: assinatura, cobrança, suporte e responsabilidade.",
+    },
+    es: {
+      title: "Términos del Servicio | NexBundle",
+      description:
+        "Los términos que rigen el uso de NexBundle, la app de compra junto para tiendas Shopify: suscripción, facturación, soporte y responsabilidad.",
+    },
+  } as const;
+  const c = byLng[lng] ?? byLng.en;
+  return [
+    { title: c.title },
+    { name: "description", content: c.description },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: "https://nexbundle.sprezzia.live/legal/terms",
+    },
+  ];
+};
+
 // ---------------------------------------------------------------------------
-// Conteúdo legal (inline). Modelo — revisar com advogado antes do lançamento.
+// Conteúdo legal (inline). Revisar com advogado antes do lançamento.
 // ---------------------------------------------------------------------------
 
 type Section = { heading: string; body: string[] };
@@ -40,7 +73,6 @@ type TermsContent = {
   langLabel: string;
   title: string;
   lastUpdated: string;
-  draftNotice: string;
   intro: string[];
   sections: Section[];
 };
@@ -49,9 +81,7 @@ const CONTENT: Record<SupportedLng, TermsContent> = {
   en: {
     langLabel: "English",
     title: "Terms of Service",
-    lastUpdated: "Last updated: [DATE]",
-    draftNotice:
-      "Draft template — this document must be reviewed and approved by a qualified lawyer before launch. Bracketed values (e.g. [LEGAL ENTITY], [DATE]) are placeholders to be filled in by the owner.",
+    lastUpdated: "Last updated: July 26, 2026",
     intro: [
       "These Terms of Service (the “Terms”) govern your access to and use of NexBundle (the “App”), provided by [LEGAL ENTITY], CNPJ [CNPJ], located at [ADDRESS]. By installing or using the App, you (the “Merchant”) agree to these Terms.",
     ],
@@ -137,9 +167,7 @@ const CONTENT: Record<SupportedLng, TermsContent> = {
   "pt-BR": {
     langLabel: "Português",
     title: "Termos de Serviço",
-    lastUpdated: "Última atualização: [DATA]",
-    draftNotice:
-      "Modelo em rascunho — este documento deve ser revisado e aprovado por um advogado qualificado antes do lançamento. Os valores entre colchetes (ex.: [RAZÃO SOCIAL], [DATA]) são placeholders a serem preenchidos pelo responsável.",
+    lastUpdated: "Última atualização: 26 de julho de 2026",
     intro: [
       "Estes Termos de Serviço (os “Termos”) regem o seu acesso e uso do NexBundle (o “App”), fornecido por [RAZÃO SOCIAL], CNPJ [CNPJ], com sede em [ENDEREÇO]. Ao instalar ou usar o App, você (o “Lojista”) concorda com estes Termos.",
     ],
@@ -225,9 +253,7 @@ const CONTENT: Record<SupportedLng, TermsContent> = {
   es: {
     langLabel: "Español",
     title: "Términos de Servicio",
-    lastUpdated: "Última actualización: [DATA]",
-    draftNotice:
-      "Plantilla en borrador — este documento debe ser revisado y aprobado por un abogado calificado antes del lanzamiento. Los valores entre corchetes (p. ej., [RAZÓN SOCIAL], [DATA]) son marcadores que debe completar el responsable.",
+    lastUpdated: "Última actualización: 26 de julio de 2026",
     intro: [
       "Estos Términos de Servicio (los “Términos”) rigen su acceso y uso de NexBundle (la “App”), proporcionada por [RAZÓN SOCIAL], CNPJ [CNPJ], con domicilio en [ENDEREÇO]. Al instalar o usar la App, usted (el “Comerciante”) acepta estos Términos.",
     ],
@@ -341,15 +367,6 @@ const styles = {
   langLink: { color: "#52606d", textDecoration: "none" },
   h1: { fontSize: 30, lineHeight: 1.25, margin: "0 0 8px" },
   updated: { color: "#7b8794", fontSize: 14, margin: "0 0 24px" },
-  notice: {
-    background: "#fff8e1",
-    border: "1px solid #f6d55c",
-    borderRadius: 8,
-    padding: "12px 16px",
-    fontSize: 14,
-    color: "#5c4813",
-    margin: "0 0 32px",
-  },
   h2: { fontSize: 20, lineHeight: 1.3, margin: "36px 0 8px" },
   p: { margin: "0 0 14px" },
 };
@@ -384,7 +401,6 @@ export default function LegalTerms() {
 
       <h1 style={styles.h1}>{c.title}</h1>
       <p style={styles.updated}>{c.lastUpdated}</p>
-      <p style={styles.notice}>{c.draftNotice}</p>
 
       {c.intro.map((p, i) => (
         <p key={`intro-${i}`} style={styles.p}>

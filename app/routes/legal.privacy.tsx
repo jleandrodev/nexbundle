@@ -9,10 +9,11 @@
  * URL canônica de produção: https://nexbundle.sprezzia.live/legal/privacy
  *
  * TODO(owner): antes do lançamento, revise TODO o texto com um advogado e preencha
- * os placeholders: [RAZÃO SOCIAL], [CNPJ], [ENDEREÇO], [DATA] e confirme o e-mail
- * de contato (suporte@nexbundle.sprezzia.live).
+ * os placeholders: [RAZÃO SOCIAL], [CNPJ], [ENDEREÇO] e confirme o e-mail de contato
+ * (suporte@nexbundle.sprezzia.live). A data de "última atualização" é editada à mão
+ * aqui em `lastUpdated` sempre que o texto mudar.
  */
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
@@ -32,8 +33,40 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({ lng });
 }
 
+/** SEO: título/descrição seguem o idioma resolvido no loader. */
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const lng = data?.lng ?? "en";
+  const byLng = {
+    en: {
+      title: "Privacy Policy | NexBundle",
+      description:
+        "How NexBundle collects, uses and protects data from Shopify stores that install the app, including GDPR/LGPD requests and data deletion.",
+    },
+    "pt-BR": {
+      title: "Política de Privacidade | NexBundle",
+      description:
+        "Como o NexBundle coleta, usa e protege os dados das lojas Shopify que instalam o app, incluindo solicitações LGPD/GDPR e exclusão de dados.",
+    },
+    es: {
+      title: "Política de Privacidad | NexBundle",
+      description:
+        "Cómo NexBundle recopila, usa y protege los datos de las tiendas Shopify que instalan la app, incluidas las solicitudes GDPR y la eliminación de datos.",
+    },
+  } as const;
+  const c = byLng[lng] ?? byLng.en;
+  return [
+    { title: c.title },
+    { name: "description", content: c.description },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: "https://nexbundle.sprezzia.live/legal/privacy",
+    },
+  ];
+};
+
 // ---------------------------------------------------------------------------
-// Conteúdo legal (inline). Modelo — revisar com advogado antes do lançamento.
+// Conteúdo legal (inline). Revisar com advogado antes do lançamento.
 // ---------------------------------------------------------------------------
 
 type Section = { heading: string; body: string[] };
@@ -41,7 +74,6 @@ type PrivacyContent = {
   langLabel: string;
   title: string;
   lastUpdated: string;
-  draftNotice: string;
   intro: string[];
   sections: Section[];
 };
@@ -50,9 +82,7 @@ const CONTENT: Record<SupportedLng, PrivacyContent> = {
   en: {
     langLabel: "English",
     title: "Privacy Policy",
-    lastUpdated: "Last updated: [DATE]",
-    draftNotice:
-      "Draft template — this document must be reviewed and approved by a qualified lawyer before launch. Bracketed values (e.g. [LEGAL ENTITY], [DATE]) are placeholders to be filled in by the owner.",
+    lastUpdated: "Last updated: July 26, 2026",
     intro: [
       "This Privacy Policy explains how NexBundle (the “App”, “we”, “us”), operated by [LEGAL ENTITY], CNPJ [CNPJ], located at [ADDRESS], collects, uses, stores and protects information in connection with your use of the App.",
       "NexBundle is a “buy together / cross-sell” application embedded in the Shopify admin. It lets a merchant define product relationships (a main product and companion products) that are displayed together on the storefront. By installing or using the App, you agree to this Policy.",
@@ -142,9 +172,7 @@ const CONTENT: Record<SupportedLng, PrivacyContent> = {
   "pt-BR": {
     langLabel: "Português",
     title: "Política de Privacidade",
-    lastUpdated: "Última atualização: [DATA]",
-    draftNotice:
-      "Modelo em rascunho — este documento deve ser revisado e aprovado por um advogado qualificado antes do lançamento. Os valores entre colchetes (ex.: [RAZÃO SOCIAL], [DATA]) são placeholders a serem preenchidos pelo responsável.",
+    lastUpdated: "Última atualização: 26 de julho de 2026",
     intro: [
       "Esta Política de Privacidade explica como o NexBundle (o “App”, “nós”), operado por [RAZÃO SOCIAL], CNPJ [CNPJ], com sede em [ENDEREÇO], coleta, usa, armazena e protege informações relacionadas ao uso do App.",
       "O NexBundle é um aplicativo de “compre junto / cross-sell” embarcado no admin da Shopify. Ele permite ao lojista definir relacionamentos de produtos (um produto principal e produtos companheiros) exibidos juntos na vitrine. Ao instalar ou usar o App, você concorda com esta Política.",
@@ -234,9 +262,7 @@ const CONTENT: Record<SupportedLng, PrivacyContent> = {
   es: {
     langLabel: "Español",
     title: "Política de Privacidad",
-    lastUpdated: "Última actualización: [DATA]",
-    draftNotice:
-      "Plantilla en borrador — este documento debe ser revisado y aprobado por un abogado calificado antes del lanzamiento. Los valores entre corchetes (p. ej., [RAZÓN SOCIAL], [DATA]) son marcadores que debe completar el responsable.",
+    lastUpdated: "Última actualización: 26 de julio de 2026",
     intro: [
       "Esta Política de Privacidad explica cómo NexBundle (la “App”, “nosotros”), operada por [RAZÓN SOCIAL], CNPJ [CNPJ], con domicilio en [ENDEREÇO], recopila, usa, almacena y protege información en relación con el uso de la App.",
       "NexBundle es una aplicación de “compra junto / venta cruzada” integrada en el panel de administración de Shopify. Permite al comerciante definir relaciones de productos (un producto principal y productos complementarios) que se muestran juntos en la tienda. Al instalar o usar la App, usted acepta esta Política.",
@@ -358,15 +384,6 @@ const styles = {
   langLink: { color: "#52606d", textDecoration: "none" },
   h1: { fontSize: 30, lineHeight: 1.25, margin: "0 0 8px" },
   updated: { color: "#7b8794", fontSize: 14, margin: "0 0 24px" },
-  notice: {
-    background: "#fff8e1",
-    border: "1px solid #f6d55c",
-    borderRadius: 8,
-    padding: "12px 16px",
-    fontSize: 14,
-    color: "#5c4813",
-    margin: "0 0 32px",
-  },
   h2: { fontSize: 20, lineHeight: 1.3, margin: "36px 0 8px" },
   p: { margin: "0 0 14px" },
 };
@@ -401,7 +418,6 @@ export default function LegalPrivacy() {
 
       <h1 style={styles.h1}>{c.title}</h1>
       <p style={styles.updated}>{c.lastUpdated}</p>
-      <p style={styles.notice}>{c.draftNotice}</p>
 
       {c.intro.map((p, i) => (
         <p key={`intro-${i}`} style={styles.p}>

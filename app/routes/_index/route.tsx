@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
@@ -8,6 +8,30 @@ import styles from "./styles.module.css";
 
 // {/* TODO: confirmar e-mail/branding */}
 const SUPPORT_EMAIL = "suporte@nexbundle.sprezzia.live";
+
+const SITE_URL = "https://nexbundle.sprezzia.live";
+const TITLE = "Frequently Bought Together for Shopify | NexBundle";
+const DESCRIPTION =
+  "Turn any product page into a bundle: suggest matching products, let shoppers pick variants and quantities, and apply a real discount at checkout. No code.";
+
+/** SEO da página pública. Título ≤60 e descrição ≤155 para não truncar no Google. */
+export const meta: MetaFunction = () => [
+  { title: TITLE },
+  { name: "description", content: DESCRIPTION },
+  { tagName: "link", rel: "canonical", href: `${SITE_URL}/` },
+  // Open Graph / Twitter — o link é compartilhado em grupos de lojistas.
+  { property: "og:type", content: "website" },
+  { property: "og:site_name", content: "NexBundle" },
+  { property: "og:title", content: TITLE },
+  { property: "og:description", content: DESCRIPTION },
+  { property: "og:url", content: `${SITE_URL}/` },
+  { property: "og:image", content: `${SITE_URL}/logo.png` },
+  { property: "og:locale", content: "en_US" },
+  { name: "twitter:card", content: "summary_large_image" },
+  { name: "twitter:title", content: TITLE },
+  { name: "twitter:description", content: DESCRIPTION },
+  { name: "twitter:image", content: `${SITE_URL}/logo.png` },
+];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -42,68 +66,79 @@ function Check({ className }: { className?: string }) {
   );
 }
 
+/* Marca: logo real (wordmark + símbolo) servida de /public/logo.png. */
+function Brand({ className }: { className?: string }) {
+  return (
+    <img
+      className={`${styles.logo}${className ? " " + className : ""}`}
+      src="/logo.png"
+      alt="NexBundle"
+      width={1408}
+      height={327}
+    />
+  );
+}
+
 export default function Index() {
   const { showForm } = useLoaderData<typeof loader>();
 
   return (
-    <div className={styles.page}>
+    // Página de marketing pública — sempre em inglês, independente do locale do admin.
+    <div className={styles.page} lang="en">
       {/* ---------------- Nav ---------------- */}
       <header className={styles.nav}>
-        <nav className={`${styles.shell} ${styles.navInner}`} aria-label="Principal">
-          <a className={styles.brand} href="#topo" aria-label="NexBundle, página inicial">
-            <span className={styles.mark} aria-hidden="true">
-              +
-            </span>
-            NexBundle
+        <nav className={`${styles.shell} ${styles.navInner}`} aria-label="Main">
+          <a className={styles.brand} href="#top" aria-label="NexBundle, home">
+            <Brand />
           </a>
           <div className={styles.navLinks}>
-            <a className={styles.hideMobile} href="#recursos">
-              Recursos
+            <a className={styles.hideMobile} href="#features">
+              Features
             </a>
-            <a className={styles.hideMobile} href="#como-funciona">
-              Como funciona
+            <a className={styles.hideMobile} href="#how-it-works">
+              How it works
             </a>
-            <a className={styles.hideMobile} href="#precos">
-              Preços
+            <a className={styles.hideMobile} href="#pricing">
+              Pricing
             </a>
-            <a className={`${styles.btn} ${styles.btnAccent} ${styles.btnSmall}`} href="#comecar">
-              Começar
+            <a className={`${styles.btn} ${styles.btnAccent} ${styles.btnSmall}`} href="#get-started">
+              Get started
             </a>
           </div>
         </nav>
       </header>
 
-      <main id="topo">
+      <main id="top">
         {/* ---------------- Hero ---------------- */}
         <section className={styles.hero}>
           <div className={`${styles.shell} ${styles.heroGrid}`}>
             <div className={styles.heroCopy}>
-              <p className={styles.eyebrow}>Compre junto para Shopify</p>
+              <p className={styles.eyebrow}>Buy together for Shopify</p>
               <h1 className={styles.h1}>
-                Venda dois quando você venderia <em>apenas um</em>.
+                Sell two where you were selling <em>just one</em>.
               </h1>
               <p className={styles.lead}>
-                O NexBundle mostra produtos que combinam na página do seu produto e
-                deixa o cliente levar tudo com um clique. Mais itens por pedido, mais
-                ticket médio, zero código.
+                NexBundle shows matching products right on your product page and lets
+                shoppers take the whole set in one click — with a real discount applied
+                at checkout. More items per order, no code.
               </p>
               <div className={styles.heroCtas}>
-                <a className={`${styles.btn} ${styles.btnAccent}`} href="#comecar">
-                  Instalar na minha loja
+                <a className={`${styles.btn} ${styles.btnAccent}`} href="#get-started">
+                  Install on my store
                 </a>
-                <a className={`${styles.btn} ${styles.btnGhost}`} href="#como-funciona">
-                  Ver como funciona
+                <a className={`${styles.btn} ${styles.btnGhost}`} href="#how-it-works">
+                  See how it works
                 </a>
               </div>
               <div className={styles.trustRow}>
                 <span className={styles.trustItem}>
-                  <Check className={styles.check} /> Teste grátis
+                  <Check className={styles.check} /> Free trial
                 </span>
                 <span className={styles.trustItem}>
-                  <Check className={styles.check} /> Sem tocar em código
+                  <Check className={styles.check} /> No code required
                 </span>
                 <span className={styles.trustItem}>
-                  <Check className={styles.check} /> Painel em PT, EN e ES
+                  <Check className={styles.check} /> Admin in EN, PT &amp; ES
                 </span>
               </div>
             </div>
@@ -112,12 +147,16 @@ export default function Index() {
             <div className={styles.mockWrap}>
               <div className={styles.metricChip} aria-hidden="true">
                 <span className={styles.num}>+18% CTR</span>
-                <span className={styles.lbl}>últimos 7 dias</span>
+                <span className={styles.lbl}>last 7 days</span>
               </div>
-              <div className={styles.mock} role="img" aria-label="Exemplo do bloco Compre junto exibido na página de um produto, com dois produtos e o botão adicionar ambos ao carrinho.">
+              <div
+                className={styles.mock}
+                role="img"
+                aria-label="Example of the buy-together block on a product page, with two products, the bundle total and an add to cart button."
+              >
                 <p className={styles.mockHead}>
-                  Compre junto
-                  <span className={styles.mockTag}>lado a lado</span>
+                  Frequently bought together
+                  <span className={styles.mockTag}>side by side</span>
                 </p>
                 <div className={styles.bundleRow}>
                   <div className={styles.prod}>
@@ -126,8 +165,8 @@ export default function Index() {
                       <rect x="30" y="20" width="60" height="46" rx="6" fill="#5b3df5" />
                       <rect x="42" y="70" width="36" height="8" rx="4" fill="#c9bdfb" />
                     </svg>
-                    <p className={styles.prodName}>Tênis Runner</p>
-                    <p className={styles.prodPrice}>R$ 299</p>
+                    <p className={styles.prodName}>Runner Sneakers</p>
+                    <p className={styles.prodPrice}>$89.00</p>
                   </div>
                   <div className={styles.plus} aria-hidden="true">
                     +
@@ -138,29 +177,30 @@ export default function Index() {
                       <circle cx="60" cy="44" r="24" fill="#ff6a45" />
                       <rect x="42" y="72" width="36" height="8" rx="4" fill="#ffc3b2" />
                     </svg>
-                    <p className={styles.prodName}>Meia Esportiva</p>
-                    <p className={styles.prodPrice}>R$ 49</p>
+                    <p className={styles.prodName}>Sport Socks</p>
+                    <p className={styles.prodPrice}>$19.00</p>
                   </div>
                 </div>
                 <div className={styles.mockTotal}>
-                  Total do combo <b>R$ 348</b>
+                  Total price <s>$108.00</s> <b>$97.20</b>
+                  <span className={styles.mockBadge}>-10%</span>
                 </div>
                 <button className={styles.mockCta} type="button" tabIndex={-1} aria-hidden="true">
-                  Adicionar ambos ao carrinho
+                  Add bundle to cart
                 </button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---------------- Recursos ---------------- */}
-        <section id="recursos" className={styles.section}>
+        {/* ---------------- Features ---------------- */}
+        <section id="features" className={styles.section}>
           <div className={styles.shell}>
             <div className={styles.sectionHead}>
-              <p className={styles.eyebrow}>Recursos</p>
-              <h2 className={styles.h2}>Tudo que precisa para sugerir o próximo item</h2>
+              <p className={styles.eyebrow}>Features</p>
+              <h2 className={styles.h2}>Everything you need to sell the next item</h2>
               <p className={styles.sectionSub}>
-                Configurável, mensurável e feito para rodar sozinho depois de ativo.
+                Configurable, measurable and built to run on its own once it is live.
               </p>
             </div>
 
@@ -168,14 +208,43 @@ export default function Index() {
               <article className={styles.feature}>
                 <div className={styles.fIcon} aria-hidden="true">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                    <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
+                  </svg>
+                </div>
+                <h3 className={styles.fTitle}>Real discount at checkout</h3>
+                <p className={styles.fText}>
+                  Set a percentage or fixed bundle discount. A Shopify Function applies it
+                  at checkout — no discount codes to hand out.
+                </p>
+              </article>
+
+              <article className={styles.feature}>
+                <div className={styles.fIcon} aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="4" width="7" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
                     <rect x="14" y="4" width="7" height="16" rx="2" stroke="currentColor" strokeWidth="2" />
                   </svg>
                 </div>
-                <h3 className={styles.fTitle}>3 layouts</h3>
+                <h3 className={styles.fTitle}>Three layouts</h3>
                 <p className={styles.fText}>
-                  Lado a lado, lista ou compacto. Escolha o formato que combina com a
-                  página do seu produto.
+                  Side by side, list or compact. Pick the shape that fits your product
+                  page — from a full showcase to a slim strip.
+                </p>
+              </article>
+
+              <article className={styles.feature}>
+                <div className={styles.fIcon} aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="2" />
+                    <path d="M5 9l1.5 1.5L9 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M14 7h7M14 12h7M14 17h7M3 17h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <h3 className={styles.fTitle}>Shoppers build the bundle</h3>
+                <p className={styles.fText}>
+                  Every item has its own checkbox, variant picker and quantity, and the
+                  total updates live as the shopper changes their mind.
                 </p>
               </article>
 
@@ -186,10 +255,10 @@ export default function Index() {
                     <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </div>
-                <h3 className={styles.fTitle}>Estilo sem código</h3>
+                <h3 className={styles.fTitle}>Styling without code</h3>
                 <p className={styles.fText}>
-                  Cores, título, botão e borda ajustáveis direto no painel. Combine com
-                  a identidade da loja em minutos.
+                  Colors, title, buttons and borders straight from the admin. Match your
+                  store identity in minutes.
                 </p>
               </article>
 
@@ -200,24 +269,10 @@ export default function Index() {
                     <path d="M8 16l3-4 3 2 4-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h3 className={styles.fTitle}>Métricas de verdade</h3>
+                <h3 className={styles.fTitle}>Metrics that matter</h3>
                 <p className={styles.fText}>
-                  Impressões, cliques e CTR no painel. Veja quais combos convertem e
-                  aposte nos que dão resultado.
-                </p>
-              </article>
-
-              <article className={styles.feature}>
-                <div className={styles.fIcon} aria-hidden="true">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M7 8l-4 4 4 4M17 8l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M14 5l-4 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <h3 className={styles.fTitle}>Uni ou bidirecional</h3>
-                <p className={styles.fText}>
-                  O principal sugere o companheiro, e o companheiro sugere o principal.
-                  Você decide o sentido da recomendação.
+                  Impressions, clicks and CTR in your dashboard. See which bundles convert
+                  and double down on the ones that pay off.
                 </p>
               </article>
 
@@ -229,67 +284,53 @@ export default function Index() {
                     <path d="M7 9l2.5 2.5L7 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h3 className={styles.fTitle}>Instala no editor de tema</h3>
+                <h3 className={styles.fTitle}>Installs from the theme editor</h3>
                 <p className={styles.fText}>
-                  Adicione o bloco pelo editor de tema do Shopify. Nada de mexer em
-                  Liquid ou pedir ajuda pra dev.
-                </p>
-              </article>
-
-              <article className={styles.feature}>
-                <div className={styles.fIcon} aria-hidden="true">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                    <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                </div>
-                <h3 className={styles.fTitle}>Painel trilíngue</h3>
-                <p className={styles.fText}>
-                  Português, Inglês e Espanhol. O painel se adapta ao idioma de quem
-                  gerencia a loja, sem configuração extra.
+                  Drag the app block into your product page in the Shopify theme editor.
+                  No Liquid, no developer needed.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        {/* ---------------- Como funciona ---------------- */}
-        <section id="como-funciona" className={`${styles.section} ${styles.sectionAlt}`}>
+        {/* ---------------- How it works ---------------- */}
+        <section id="how-it-works" className={`${styles.section} ${styles.sectionAlt}`}>
           <div className={styles.shell}>
             <div className={styles.sectionHead}>
-              <p className={styles.eyebrow}>Como funciona</p>
-              <h2 className={styles.h2}>No ar em três passos</h2>
+              <p className={styles.eyebrow}>How it works</p>
+              <h2 className={styles.h2}>Live in three steps</h2>
               <p className={styles.sectionSub}>
-                Do install ao primeiro combo recomendado sem sair do Shopify.
+                From install to your first recommended bundle without leaving Shopify.
               </p>
             </div>
 
             <ol className={styles.steps}>
               <li className={styles.step}>
                 <div className={styles.stepBar} aria-hidden="true" />
-                <span className={styles.stepNum}>Passo 01</span>
-                <h3 className={styles.stepTitle}>Adicione o bloco</h3>
+                <span className={styles.stepNum}>Step 01</span>
+                <h3 className={styles.stepTitle}>Add the block</h3>
                 <p className={styles.stepText}>
-                  Ative o bloco do NexBundle no editor de tema e escolha onde ele
-                  aparece na página do produto.
+                  Enable the NexBundle app block in your theme editor and choose where it
+                  shows up on the product page.
                 </p>
               </li>
               <li className={styles.step}>
                 <div className={styles.stepBar} aria-hidden="true" />
-                <span className={styles.stepNum}>Passo 02</span>
-                <h3 className={styles.stepTitle}>Vincule os produtos</h3>
+                <span className={styles.stepNum}>Step 02</span>
+                <h3 className={styles.stepTitle}>Link the products</h3>
                 <p className={styles.stepText}>
-                  Conecte cada produto principal aos seus companheiros e defina se a
-                  sugestão é uni ou bidirecional.
+                  Connect each main product to its companions, set the bundle discount and
+                  decide whether the suggestion is one-way or two-way.
                 </p>
               </li>
               <li className={styles.step}>
                 <div className={styles.stepBar} aria-hidden="true" />
-                <span className={styles.stepNum}>Passo 03</span>
-                <h3 className={styles.stepTitle}>Acompanhe e ajuste</h3>
+                <span className={styles.stepNum}>Step 03</span>
+                <h3 className={styles.stepTitle}>Track and tune</h3>
                 <p className={styles.stepText}>
-                  Veja impressões, cliques e CTR no painel e refine os combos que mais
-                  levantam o ticket médio.
+                  Watch impressions, clicks and CTR in the dashboard and refine the bundles
+                  that lift your average order value.
                 </p>
               </li>
             </ol>
@@ -297,52 +338,56 @@ export default function Index() {
             <div className={styles.statsBand}>
               <div className={styles.stat}>
                 <div className={styles.statNum}>3</div>
-                <div className={styles.statLbl}>layouts prontos para usar</div>
+                <div className={styles.statLbl}>layouts ready to use</div>
               </div>
               <div className={styles.stat}>
                 <div className={styles.statNum}>3</div>
-                <div className={styles.statLbl}>idiomas no painel do lojista</div>
+                <div className={styles.statLbl}>languages in the merchant admin</div>
               </div>
               <div className={styles.stat}>
                 <div className={styles.statNum}>0</div>
-                <div className={styles.statLbl}>linha de código para instalar</div>
+                <div className={styles.statLbl}>lines of code to install</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---------------- Preços ---------------- */}
-        <section id="precos" className={styles.section}>
+        {/* ---------------- Pricing ---------------- */}
+        <section id="pricing" className={styles.section}>
           <div className={styles.shell}>
             <div className={styles.sectionHead}>
-              <p className={styles.eyebrow}>Planos</p>
-              <h2 className={styles.h2}>Comece grátis, cresça quando fizer sentido</h2>
+              <p className={styles.eyebrow}>Plans</p>
+              <h2 className={styles.h2}>Start with a free trial, grow when it pays off</h2>
               <p className={styles.sectionSub}>
-                Todos os planos incluem teste grátis e suporte por chat dentro do app.
+                Every plan includes a 7-day free trial and in-app chat support.
               </p>
             </div>
 
             <div className={styles.plans}>
-              {/* Essencial */}
+              {/* Essential */}
               <article className={styles.plan}>
-                <div className={styles.planName}>Essencial</div>
-                {/* TODO: confirmar preços dos planos */}
-                <div className={styles.planPrice}>—</div>
-                <p className={styles.planDesc}>Para começar a recomendar combos.</p>
+                <div className={styles.planName}>Essential</div>
+                <div className={styles.planPrice}>
+                  $6.99<span className={styles.planPer}>/month</span>
+                </div>
+                <p className={styles.planDesc}>To start recommending bundles.</p>
                 <ul className={styles.planList}>
                   <li>
-                    <Check /> Bloco compre junto na página de produto
+                    <Check /> Up to 50 products with a bundle
                   </li>
                   <li>
-                    <Check /> 3 layouts e estilo personalizável
+                    <Check /> Three layouts and no-code styling
                   </li>
                   <li>
-                    <Check /> Métricas de impressões e cliques
+                    <Check /> Bundle discount applied at checkout
+                  </li>
+                  <li>
+                    <Check /> Impression and click metrics
                   </li>
                 </ul>
                 <div className={styles.planCtaWrap}>
-                  <a className={`${styles.btn} ${styles.btnGhost}`} href="#comecar">
-                    Começar grátis
+                  <a className={`${styles.btn} ${styles.btnGhost}`} href="#get-started">
+                    Start free
                   </a>
                 </div>
               </article>
@@ -352,26 +397,27 @@ export default function Index() {
                 <div className={styles.planName}>
                   Pro <span className={styles.planBadge}>Popular</span>
                 </div>
-                {/* TODO: confirmar preços dos planos */}
-                <div className={styles.planPrice}>—</div>
-                <p className={styles.planDesc}>Para escalar cross-sell com dados.</p>
+                <div className={styles.planPrice}>
+                  $19.99<span className={styles.planPer}>/month</span>
+                </div>
+                <p className={styles.planDesc}>To scale cross-sell with data.</p>
                 <ul className={styles.planList}>
                   <li>
-                    <Check /> Tudo do Essencial
+                    <Check /> Up to 200 products with a bundle
                   </li>
                   <li>
-                    <Check /> Direção uni e bidirecional
+                    <Check /> Everything in Essential
                   </li>
                   <li>
-                    <Check /> CTR e relatórios completos
+                    <Check /> One-way and two-way recommendations
                   </li>
                   <li>
-                    <Check /> Painel em PT, EN e ES
+                    <Check /> Full CTR reporting
                   </li>
                 </ul>
                 <div className={styles.planCtaWrap}>
-                  <a className={`${styles.btn} ${styles.btnAccent}`} href="#comecar">
-                    Testar o Pro
+                  <a className={`${styles.btn} ${styles.btnAccent}`} href="#get-started">
+                    Try Pro
                   </a>
                 </div>
               </article>
@@ -379,64 +425,63 @@ export default function Index() {
               {/* Enterprise */}
               <article className={styles.plan}>
                 <div className={styles.planName}>Enterprise</div>
-                {/* TODO: confirmar preços dos planos */}
-                <div className={styles.planPrice}>—</div>
-                <p className={styles.planDesc}>Para catálogos grandes e times.</p>
+                <div className={styles.planPrice}>
+                  $39.99<span className={styles.planPer}>/month</span>
+                </div>
+                <p className={styles.planDesc}>For large catalogs and teams.</p>
                 <ul className={styles.planList}>
                   <li>
-                    <Check /> Tudo do Pro
+                    <Check /> Unlimited products with a bundle
                   </li>
                   <li>
-                    <Check /> Volume alto de combos
+                    <Check /> Everything in Pro
                   </li>
                   <li>
-                    <Check /> Suporte prioritário por chat
+                    <Check /> Priority chat support
                   </li>
                 </ul>
                 <div className={styles.planCtaWrap}>
                   <a className={`${styles.btn} ${styles.btnGhost}`} href={`mailto:${SUPPORT_EMAIL}`}>
-                    Falar com o time
+                    Talk to us
                   </a>
                 </div>
               </article>
             </div>
             <p className={styles.plansNote}>
-              {/* TODO: confirmar valores e limites exatos de cada plano */}
-              Valores exibidos na loja de apps do Shopify no momento da instalação.
+              Prices in USD, billed monthly through Shopify. The exact plan shown at
+              install is the one on the Shopify App Store listing.
             </p>
           </div>
         </section>
 
         {/* ---------------- CTA / login por shop domain ---------------- */}
-        <section id="comecar" className={styles.section}>
+        <section id="get-started" className={styles.section}>
           <div className={styles.shell}>
             <div className={styles.cta}>
-              <p className={styles.eyebrow} style={{ color: "#fff", justifyContent: "center" }}>
-                Começar
-              </p>
-              <h2 className={styles.h2}>Ative o NexBundle na sua loja</h2>
+              <p className={`${styles.eyebrow} ${styles.eyebrowOnDark}`}>Get started</p>
+              <h2 className={styles.h2}>Turn NexBundle on in your store</h2>
               <p className={styles.ctaSub}>
-                Informe o domínio da sua loja Shopify para entrar e instalar. Leva
-                alguns minutos e você já sai com o primeiro combo no ar.
+                Enter your Shopify store domain to log in and install. It takes a few
+                minutes and you leave with your first bundle live.
               </p>
 
               {showForm ? (
                 <Form className={styles.loginForm} method="post" action="/auth/login">
                   <label className={styles.loginField}>
-                    <span>Domínio da loja</span>
+                    <span>Store domain</span>
                     <input
                       className={styles.input}
                       type="text"
                       name="shop"
-                      placeholder="minha-loja.myshopify.com"
+                      placeholder="my-store.myshopify.com"
                       autoComplete="off"
                       autoCapitalize="none"
                       spellCheck={false}
                     />
-                    <span className={styles.hint}>ex.: minha-loja.myshopify.com</span>
+                    <span className={styles.hint}>e.g. my-store.myshopify.com</span>
                   </label>
                   <button className={styles.loginSubmit} type="submit">
-                    Entrar e instalar
+                    Log in and install
                   </button>
                 </Form>
               ) : (
@@ -445,7 +490,7 @@ export default function Index() {
                     className={`${styles.btn} ${styles.btnAccent}`}
                     href="https://apps.shopify.com"
                   >
-                    Instalar pela Shopify App Store
+                    Install from the Shopify App Store
                   </a>
                 </div>
               )}
@@ -459,44 +504,41 @@ export default function Index() {
         <div className={styles.shell}>
           <div className={styles.footGrid}>
             <div>
-              <a className={styles.brand} href="#topo">
-                <span className={styles.mark} aria-hidden="true">
-                  +
-                </span>
-                NexBundle
+              <a className={styles.brand} href="#top" aria-label="NexBundle, home">
+                <Brand />
               </a>
               <p className={styles.footTag}>
-                Compre junto e cross-sell para lojas Shopify. Mais itens por pedido,
-                sem código.
+                Buy together and cross-sell for Shopify stores. More items per order,
+                without code.
               </p>
             </div>
 
             <div className={styles.footCols}>
               <div className={styles.footCol}>
-                <h4>Produto</h4>
-                <a href="#recursos">Recursos</a>
-                <a href="#como-funciona">Como funciona</a>
-                <a href="#precos">Preços</a>
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it works</a>
+                <a href="#pricing">Pricing</a>
               </div>
               <div className={styles.footCol}>
                 <h4>Legal</h4>
-                <a href="/legal/privacy">Privacidade</a>
-                <a href="/legal/terms">Termos</a>
+                <a href="/legal/privacy">Privacy</a>
+                <a href="/legal/terms">Terms</a>
               </div>
               <div className={styles.footCol}>
-                <h4>Suporte</h4>
+                <h4>Support</h4>
                 {/* TODO: confirmar e-mail/branding */}
                 <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-                <span>Chat dentro do app</span>
+                <span>In-app chat</span>
               </div>
             </div>
           </div>
 
           <div className={styles.footBottom}>
-            <span>© 2026 NexBundle. Todos os direitos reservados.</span>
+            <span>© 2026 NexBundle. All rights reserved.</span>
             <span className={styles.langBadge}>
-              <span className={styles.langPill}>PT</span>
               <span className={styles.langPill}>EN</span>
+              <span className={styles.langPill}>PT</span>
               <span className={styles.langPill}>ES</span>
             </span>
           </div>

@@ -15,13 +15,17 @@
   --violet: #5b3df5;
   --violet-deep: #3d25c4;
   --coral: #ff6a45;
+  /* Versão do coral para TEXTO/badges: o coral puro dá 2.84:1 no branco (reprova
+     no WCAG AA); este dá 5.18:1 nos dois sentidos. */
+  --coral-ink: #c2410c;
   --coral-soft: #ffe9e2;
   --paper: #ffffff;
   --mist: #f5f3ff;
   --mist-2: #efeaff;
   --line: #e7e3f5;
   --muted: #625d72;
-  --green: #12a37a;
+  /* Verde escurecido para 5.3:1 no branco (o #12a37a original ficava em 3.2:1). */
+  --green: #0d7a5c;
 
   --mono: ui-monospace, "SF Mono", SFMono-Regular, "Roboto Mono", Menlo,
     Consolas, monospace;
@@ -62,9 +66,17 @@
 }
 .eyebrow::before {
   content: "+";
-  color: var(--coral);
+  color: var(--coral-ink);
   font-weight: 700;
   font-size: 0.95rem;
+}
+/* Eyebrow sobre faixa escura (seção CTA). */
+.eyebrowOnDark {
+  color: #fff;
+  justify-content: center;
+}
+.eyebrowOnDark::before {
+  color: #ffb59e;
 }
 
 /* ---------- Nav ---------- */
@@ -86,21 +98,12 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
 }
-.mark {
-  width: 30px;
+/* Logo real (wordmark + símbolo) — proporção 1408×327. */
+.logo {
   height: 30px;
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--violet), var(--violet-deep));
-  color: #fff;
-  font-weight: 800;
-  box-shadow: 0 6px 16px rgba(91, 61, 245, 0.35);
+  width: auto;
+  display: block;
 }
 .navLinks {
   display: flex;
@@ -135,6 +138,16 @@
   border: 1px solid transparent;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+/* `.page a { color: inherit }` tem especificidade maior que `.btnAccent` e vencia a
+   cor do botão — o CTA do nav saía com texto cinza sobre roxo (1.03:1). As regras
+   abaixo usam `.page` para ganhar a disputa. */
+.page .btnPrimary,
+.page .btnAccent {
+  color: #fff;
+}
+.page .btnGhost {
+  color: var(--ink);
 }
 .btnPrimary {
   background: var(--ink);
@@ -195,7 +208,9 @@
 }
 .h1 em {
   font-style: normal;
-  background: linear-gradient(120deg, var(--violet), var(--coral));
+  /* Termina no coral escuro: o coral puro fica em 2.84:1 no branco, abaixo do
+     mínimo de 3:1 até para texto grande. */
+  background: linear-gradient(120deg, var(--violet), var(--coral-ink));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -238,7 +253,8 @@
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 20px;
-  padding: 22px;
+  /* Topo mais alto para o chip de métrica não cobrir o título do card. */
+  padding: 42px 22px 22px;
   box-shadow: 0 30px 60px -24px rgba(23, 21, 31, 0.35);
 }
 .mockHead {
@@ -321,6 +337,7 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
   font-size: 0.82rem;
@@ -331,10 +348,24 @@
   color: var(--ink);
   font-size: 0.95rem;
 }
+.mockTotal s {
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.mockBadge {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--violet);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
 .metricChip {
   position: absolute;
-  top: -18px;
+  top: -16px;
   left: -14px;
+  z-index: 1;
   background: var(--ink);
   color: #fff;
   padding: 10px 14px;
@@ -427,7 +458,10 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  counter-reset: step;
+  /* O rótulo "Step 01" já numera — sem marcador do <ol> para não sair "1. Step 01". */
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 .step {
   position: relative;
@@ -437,7 +471,7 @@
   font-family: var(--mono);
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--coral);
+  color: var(--coral-ink);
   letter-spacing: 0.1em;
   display: block;
   margin-bottom: 12px;
@@ -521,7 +555,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: var(--coral);
+  background: var(--coral-ink);
   color: #fff;
   padding: 3px 8px;
   border-radius: 999px;
@@ -531,6 +565,16 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin: 12px 0 2px;
+}
+.planPer {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 4px;
+}
+.planFeatured .planPer {
+  color: rgba(255, 255, 255, 0.75);
 }
 .planDesc {
   font-size: 0.92rem;
@@ -625,7 +669,7 @@
   font-size: 0.95rem;
 }
 .input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.66);
 }
 .input:focus-visible {
   outline: 2px solid var(--coral);
@@ -634,7 +678,7 @@
 .hint {
   display: block;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.72);
   margin-top: 7px;
 }
 .loginSubmit {

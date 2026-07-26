@@ -28,6 +28,11 @@
     "uni": "Unidireccional",
     "bi": "Bidireccional"
   },
+  "discount": {
+    "none": "Sin descuento",
+    "percentage": "Porcentaje (%)",
+    "fixed": "Importe fijo"
+  },
   "status": {
     "active": "Activo",
     "inactive": "Inactivo"
@@ -59,6 +64,11 @@
     "directionBiHelp": "Aparece en ambos: el principal sugiere el complemento y viceversa.",
     "activeLabel": "Activo",
     "activeHelp": "Desactívalo para ocultarlo sin borrarlo.",
+    "discountTitle": "Descuento del combo",
+    "discountTypeLabel": "Tipo de descuento",
+    "discountPercentLabel": "Descuento",
+    "discountFixedLabel": "Importe del descuento",
+    "discountHelp": "Se aplica en el checkout cuando el cliente lleva 2 o más artículos del componente.",
     "styleBackground": "Fondo",
     "styleText": "Texto",
     "showTitle": "Mostrar título de la sección",
@@ -69,6 +79,13 @@
     "buttonHover": "Botón (hover)",
     "buttonTextColor": "Texto del botón",
     "buttonLabel": "Etiqueta del botón",
+    "showBuyNow": "Mostrar botón \"comprar ahora\"",
+    "showBuyNowHelp": "Añade al carrito y va directo al checkout.",
+    "buyNowLabel": "Etiqueta de \"comprar ahora\"",
+    "showQuantity": "Mostrar selector de cantidad",
+    "showQuantityHelp": "Control − 1 + en cada artículo.",
+    "showVariantPicker": "Mostrar selector de variante",
+    "showVariantPickerHelp": "Permite cambiar color/talla sin salir de la página.",
     "cardBorder": "Tarjetas con borde",
     "save": "Guardar componente",
     "confirmDelete": "¿Eliminar este componente? Esta acción no se puede deshacer."
@@ -77,9 +94,15 @@
     "mainSample": "Producto principal",
     "companionSample": "Producto complementario",
     "companionSample2": "Otro complemento",
+    "optionSample": "Negro",
     "total": "Total",
+    "totalPrice": "Precio total",
     "totalTwoItems": "Total de los dos artículos",
-    "addAll": "Añadir todo al carrito"
+    "youSave": "Ahorras {{amount}} ({{percent}}%)",
+    "addAll": "Añadir todo al carrito",
+    "buyNow": "Comprar ahora",
+    "addMore": "Añadir más productos",
+    "viewMoreOptions": "Ver más opciones"
   },
   "errors": {
     "limitReached": "Has alcanzado el límite de tu plan ({{limit}} productos). Mejora tu plan en \"Planes\".",

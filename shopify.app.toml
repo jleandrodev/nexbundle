@@ -7,8 +7,11 @@ embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-# NÃO deixar vazio: o config:link zera isto (gotcha #8). Buy Together só lê produtos.
-scopes = "read_products"
+# NÃO deixar vazio: o config:link zera isto (gotcha #8).
+# read_products: enriquecer produtos/variantes do componente.
+# write_discounts: criar/atualizar o desconto automático da Shopify Function do bundle.
+# ATENÇÃO: mudar scopes exige REINSTALAR o app (gotcha #6).
+scopes = "read_products,write_discounts"
 
 [app_proxy]
 # Produção na VPS (domínio fixo). O storefront chama nexbundle.sprezzia.live/apps/buy-together.

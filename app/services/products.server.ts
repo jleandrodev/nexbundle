@@ -1,17 +1,33 @@
 /**
  * Enriquecimento de produtos via Admin GraphQL.
  * Padrão do boilerplate (admin-graphql-patterns.md): 1 query barata com nodes(ids:[...]),
- * campos mínimos, cuidado com custo. Resolve título, imagem, preço e 1ª variante disponível.
+ * campos mínimos, cuidado com custo. Resolve título, imagem, preço e as variantes
+ * (com opções) que o componente usa nos seletores do storefront.
  */
+
+export type EnrichedVariant = {
+  id: string; // id NUMÉRICO (é o que /cart/add.js aceita)
+  title: string; // "Preto / M"
+  price: number; // centavos
+  compareAtPrice: number | null; // centavos (preço "de")
+  available: boolean;
+  image: string | null; // imagem da variante (cai para a do produto quando nula)
+  options: Array<{ name: string; value: string }>; // selectedOptions
+};
 
 export type EnrichedProduct = {
   productId: string; // gid://shopify/Product/...
-  variantId: string | null; // numérico? não — aqui é o id numérico da variante para /cart/add.js
+  variantId: string | null; // id numérico da variante escolhida (padrão do componente)
   title: string;
   image: string | null;
-  price: number; // em centavos
+  price: number; // em centavos (da variante escolhida)
+  compareAtPrice: number | null; // em centavos
   available: boolean;
   url: string;
+  // Nomes das opções na ordem do produto ("Cor", "Tamanho"). Vazio quando o produto
+  // só tem a variante default ("Title / Default Title") — aí não há o que escolher.
+  optionNames: string[];
+  variants: EnrichedVariant[];
 };
 
 // Extrai o id numérico de um gid (gid://shopify/ProductVariant/123 -> "123").
@@ -21,20 +37,39 @@ function numericId(gid: string | null | undefined): string | null {
   return m ? m[1] : null;
 }
 
+function toCents(v: string | null | undefined): number | null {
+  if (v == null || v === "") return null;
+  const n = Math.round(parseFloat(String(v)) * 100);
+  return isNaN(n) ? null : n;
+}
+
+// Produto sem opções reais vem com a opção sintética "Title" = "Default Title".
+function isDefaultOption(o: { name?: string; value?: string }): boolean {
+  return o?.name === "Title" && o?.value === "Default Title";
+}
+
+// Limite de variantes trazidas por produto. Cuidado com o custo da query (gotcha #13):
+// nodes() com 50 variantes por produto já é o teto confortável para ~5 produtos.
+const VARIANTS_LIMIT = 50;
+
 const PRODUCTS_QUERY = `#graphql
-  query BuyTogetherProducts($ids: [ID!]!) {
+  query BuyTogetherProducts($ids: [ID!]!, $variants: Int!) {
     nodes(ids: $ids) {
       ... on Product {
         id
         title
         handle
         onlineStoreUrl
-        featuredImage { url(transform: { maxWidth: 200, maxHeight: 200 }) altText }
-        variants(first: 1) {
+        featuredImage { url(transform: { maxWidth: 300, maxHeight: 300 }) altText }
+        variants(first: $variants) {
           nodes {
             id
+            title
             price
+            compareAtPrice
             availableForSale
+            image { url(transform: { maxWidth: 300, maxHeight: 300 }) }
+            selectedOptions { name value }
           }
         }
       }
@@ -58,7 +93,9 @@ export async function enrichProducts(
   const ids = items.map((i) => i.productId).filter(Boolean);
   if (ids.length === 0) return [];
 
-  const res = await admin.graphql(PRODUCTS_QUERY, { variables: { ids } });
+  const res = await admin.graphql(PRODUCTS_QUERY, {
+    variables: { ids, variants: VARIANTS_LIMIT },
+  });
   const body = (await res.json()) as {
     data?: { nodes?: Array<any | null> };
   };
@@ -74,29 +111,78 @@ export async function enrichProducts(
   for (const item of items) {
     const node = byId.get(item.productId);
     if (!node) continue;
-    const firstVariant = node.variants?.nodes?.[0];
-    // Variante escolhida no painel, senão a 1ª disponível.
-    const chosenVariantGid = item.variantId || firstVariant?.id || null;
-    const priceStr = firstVariant?.price ?? "0";
-    const priceCents = Math.round(parseFloat(priceStr) * 100);
+
+    const productImage = node.featuredImage?.url ?? null;
+    const variants: EnrichedVariant[] = (node.variants?.nodes ?? [])
+      .filter((v: any) => v && v.id)
+      .map((v: any) => ({
+        id: numericId(v.id) as string,
+        title: v.title ?? "",
+        price: toCents(v.price) ?? 0,
+        compareAtPrice: toCents(v.compareAtPrice),
+        available: Boolean(v.availableForSale),
+        image: v.image?.url ?? null,
+        options: (v.selectedOptions ?? [])
+          .filter((o: any) => !isDefaultOption(o))
+          .map((o: any) => ({ name: o.name, value: o.value })),
+      }))
+      .filter((v: EnrichedVariant) => v.id);
+
+    // Variante escolhida no painel; senão a 1ª disponível; senão a 1ª.
+    const chosenId = numericId(item.variantId);
+    const chosen =
+      variants.find((v) => v.id === chosenId) ||
+      variants.find((v) => v.available) ||
+      variants[0];
+    if (!chosen) continue;
+
+    // Nomes das opções na ordem em que aparecem nas variantes.
+    const optionNames: string[] = [];
+    for (const v of variants) {
+      for (const o of v.options) {
+        if (!optionNames.includes(o.name)) optionNames.push(o.name);
+      }
+    }
+
     result.push({
       productId: node.id,
-      variantId: numericId(chosenVariantGid),
+      variantId: chosen.id,
       title: node.title ?? "",
-      image: node.featuredImage?.url ?? null,
-      price: isNaN(priceCents) ? 0 : priceCents,
-      available: Boolean(firstVariant?.availableForSale),
+      image: chosen.image || productImage,
+      price: chosen.price,
+      compareAtPrice: chosen.compareAtPrice,
+      available: variants.some((v) => v.available),
       url: node.onlineStoreUrl || (node.handle ? `/products/${node.handle}` : "#"),
+      optionNames,
+      variants,
     });
   }
   return result;
+}
+
+const CURRENCY_QUERY = `#graphql
+  query BuyTogetherShopCurrency {
+    shop { currencyCode }
+  }
+`;
+
+/** Moeda da loja — usada só para formatar o preview do painel. */
+export async function getShopCurrency(admin: { graphql: AdminGraphql }): Promise<string> {
+  try {
+    const res = await admin.graphql(CURRENCY_QUERY);
+    const body = (await res.json()) as { data?: { shop?: { currencyCode?: string } } };
+    return body?.data?.shop?.currencyCode || "BRL";
+  } catch {
+    return "BRL";
+  }
 }
 
 /** Enriquece um único produto (ex.: o principal). */
 export async function enrichOne(
   admin: { graphql: AdminGraphql },
   productId: string,
+  variantId?: string | null,
 ): Promise<EnrichedProduct | null> {
-  const [p] = await enrichProducts(admin, [{ productId }]);
+  const [p] = await enrichProducts(admin, [{ productId, variantId }]);
   return p ?? null;
 }

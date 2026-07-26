@@ -11,8 +11,18 @@ import {
   deleteRelationship,
   parseRelationshipForm,
 } from "../services/relationships.server";
-import { enrichProducts, enrichOne } from "../services/products.server";
-import { parseStyle, isTemplateId, type TemplateId } from "../lib/templates";
+import {
+  enrichProducts,
+  enrichOne,
+  getShopCurrency,
+} from "../services/products.server";
+import { syncBundleDiscountSafe } from "../services/discounts.server";
+import {
+  parseStyle,
+  isTemplateId,
+  normalizeDiscount,
+  type TemplateId,
+} from "../lib/templates";
 import { i18n } from "../i18n/i18next.server";
 import RelationshipEditor, {
   type PickedProduct,
@@ -25,7 +35,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const rel = await getRelationship(session.shop, params.id!);
   if (!rel) throw new Response("Not found", { status: 404 });
 
-  const [mainEnriched, companionsEnriched] = await Promise.all([
+  const [mainEnriched, companionsEnriched, currency] = await Promise.all([
     enrichOne(admin, rel.mainProductId),
     enrichProducts(
       admin,
@@ -34,6 +44,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         variantId: c.companionVariantId,
       })),
     ),
+    getShopCurrency(admin),
   ]);
 
   const main: PickedProduct = {
@@ -41,6 +52,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     variantId: null,
     title: mainEnriched?.title || rel.mainProductId,
     image: mainEnriched?.image || null,
+    price: mainEnriched?.price ?? null,
+    compareAtPrice: mainEnriched?.compareAtPrice ?? null,
+    optionNames: mainEnriched?.optionNames ?? [],
   };
   const companions: PickedProduct[] = rel.companions.map((c) => {
     const e = companionsEnriched.find((x) => x.productId === c.companionProductId);
@@ -49,6 +63,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       variantId: c.companionVariantId,
       title: e?.title || c.companionProductId,
       image: e?.image || null,
+      price: e?.price ?? null,
+      compareAtPrice: e?.compareAtPrice ?? null,
+      optionNames: e?.optionNames ?? [],
     };
   });
 
@@ -56,6 +73,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return json({
     id: rel.id,
+    currency,
     value: {
       name: rel.name,
       main,
@@ -63,17 +81,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       template,
       direction: rel.direction,
       enabled: rel.enabled,
+      discount: normalizeDiscount(rel.discountType, rel.discountValue),
       style: parseStyle(rel.style),
     },
   });
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const form = await request.formData();
 
   if (form.get("intent") === "delete") {
     await deleteRelationship(session.shop, params.id!);
+    // Tira o bundle da config do desconto (a Function deixa de casar com ele).
+    await syncBundleDiscountSafe(admin, session.shop);
     return redirect("/app/relationships");
   }
 
@@ -83,6 +104,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     const updated = await updateRelationship(session.shop, params.id!, parsed.value);
     if (!updated) throw new Response("Not found", { status: 404 });
+    await syncBundleDiscountSafe(admin, session.shop);
   } catch (e: any) {
     if (String(e?.code) === "P2002") {
       const t = await i18n.getFixedT(request, "relationships");
@@ -97,12 +119,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EditRelationship() {
-  const { id, value } = useLoaderData<typeof loader>();
+  const { id, value, currency } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   return (
     <RelationshipEditor
       key={id}
       mode="edit"
+      currency={currency}
       actionError={actionData?.error}
       value={{ id, ...value }}
     />

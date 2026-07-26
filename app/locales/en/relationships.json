@@ -28,6 +28,11 @@
     "uni": "One-way",
     "bi": "Two-way"
   },
+  "discount": {
+    "none": "No discount",
+    "percentage": "Percentage (%)",
+    "fixed": "Fixed amount"
+  },
   "status": {
     "active": "Active",
     "inactive": "Inactive"
@@ -59,6 +64,11 @@
     "directionBiHelp": "Shows on both: the main suggests the companion and vice versa.",
     "activeLabel": "Active",
     "activeHelp": "Turn off to hide without deleting.",
+    "discountTitle": "Bundle discount",
+    "discountTypeLabel": "Discount type",
+    "discountPercentLabel": "Discount",
+    "discountFixedLabel": "Discount amount",
+    "discountHelp": "Applied at checkout when the customer takes 2 or more items from the component.",
     "styleBackground": "Background",
     "styleText": "Text",
     "showTitle": "Show section title",
@@ -69,6 +79,13 @@
     "buttonHover": "Button (hover)",
     "buttonTextColor": "Button text",
     "buttonLabel": "Button label",
+    "showBuyNow": "Show \"buy now\" button",
+    "showBuyNowHelp": "Adds to cart and goes straight to checkout.",
+    "buyNowLabel": "\"Buy now\" label",
+    "showQuantity": "Show quantity picker",
+    "showQuantityHelp": "− 1 + stepper on every item.",
+    "showVariantPicker": "Show variant picker",
+    "showVariantPickerHelp": "Lets the customer switch color/size without leaving the page.",
     "cardBorder": "Cards with border",
     "save": "Save component",
     "confirmDelete": "Delete this component? This action cannot be undone."
@@ -77,9 +94,15 @@
     "mainSample": "Main product",
     "companionSample": "Companion product",
     "companionSample2": "Another companion",
+    "optionSample": "Black",
     "total": "Total",
+    "totalPrice": "Total price",
     "totalTwoItems": "Total for both items",
-    "addAll": "Add all to cart"
+    "youSave": "You save {{amount}} ({{percent}}%)",
+    "addAll": "Add all to cart",
+    "buyNow": "Buy it now",
+    "addMore": "Add more products",
+    "viewMoreOptions": "View more options"
   },
   "errors": {
     "limitReached": "You've reached your plan limit ({{limit}} products). Upgrade under \"Plans\".",

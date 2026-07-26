@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -14,6 +14,10 @@ import { useChangeLanguage } from "remix-i18next/react";
 import { i18n } from "./i18n/i18next.server";
 
 export const handle = { i18n: ["common"] };
+
+// Fallback: no Remix v2 o meta da rota folha SUBSTITUI o do root, então isto vale
+// só para as telas que não declaram o próprio (ex.: painel embedado).
+export const meta: MetaFunction = () => [{ title: "NexBundle" }];
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const locale = await i18n.getLocale(request);

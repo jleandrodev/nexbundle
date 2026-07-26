@@ -49,6 +49,11 @@ model Relationship {
   template      String      @default("side-by-side") // side-by-side | list | compact
   style         String      @default("{}") // JSON com ComponentStyle (cores, título, borda...)
   direction     String      @default("uni") // uni = só no principal | bi = nos dois produtos (A<->B)
+  // Desconto do bundle: exibido no componente E aplicado no checkout pela Shopify Function
+  // (extensions/buy-together-discount). `discountValue` = % quando percentage, valor na
+  // moeda da loja quando fixed. Ver services/discounts.server.ts.
+  discountType  String      @default("none") // none | percentage | fixed
+  discountValue Float       @default(0)
   companions    Companion[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -73,6 +78,16 @@ model ShopPreference {
   shop        String   @id
   adminLocale String? // "pt-BR" | "en" | "es" | null = seguir o idioma do Shopify
   updatedAt   DateTime @updatedAt
+}
+
+// Desconto automático (Shopify Function) criado pelo app na loja — 1 por shop.
+// Guardamos o gid do DiscountAutomaticNode para atualizar o metafield de configuração
+// sem precisar varrer a lista de descontos a cada save.
+model AppDiscount {
+  shop       String   @id
+  nodeId     String // gid://shopify/DiscountAutomaticNode/...
+  functionId String // id da Shopify Function usada na criação
+  updatedAt  DateTime @updatedAt
 }
 
 // Config de estilo GLOBAL por loja (1 registro por shop). Defaults = comportamento seguro.

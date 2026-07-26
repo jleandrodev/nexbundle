@@ -55,8 +55,14 @@ export type ComponentStyle = {
   buttonHoverColor: string;
   buttonTextColor: string;
   addButtonText: string;
+  // Botão secundário "comprar agora" (leva direto ao checkout).
+  showBuyNow: boolean;
+  buyNowText: string;
   // Borda do card (pode ter ou não).
   cardBorder: boolean;
+  // Controles por item no storefront.
+  showQuantity: boolean; // stepper − 1 +
+  showVariantPicker: boolean; // dropdown de variante (Cor: Preto)
 };
 
 export const DEFAULT_STYLE: ComponentStyle = {
@@ -66,12 +72,73 @@ export const DEFAULT_STYLE: ComponentStyle = {
   titleText: "Compre junto",
   titleColor: "#1a1a1a",
   titleSize: 18,
-  buttonColor: "#000000",
-  buttonHoverColor: "#333333",
+  buttonColor: "#4f46e5",
+  buttonHoverColor: "#4338ca",
   buttonTextColor: "#ffffff",
-  addButtonText: "Adicionar ambos ao carrinho",
+  addButtonText: "Adicionar ao carrinho",
+  showBuyNow: true,
+  buyNowText: "Comprar agora",
   cardBorder: true,
+  showQuantity: true,
+  showVariantPicker: true,
 };
+
+/** Desconto do bundle (por relacionamento). */
+export type DiscountType = "none" | "percentage" | "fixed";
+
+export type BundleDiscount = {
+  type: DiscountType;
+  value: number; // % quando percentage; valor na moeda da loja quando fixed
+};
+
+export const NO_DISCOUNT: BundleDiscount = { type: "none", value: 0 };
+
+export function isDiscountType(v: string): v is DiscountType {
+  return v === "none" || v === "percentage" || v === "fixed";
+}
+
+/** Normaliza o que veio do DB/form (clampa % em 0–100 e não deixa valor negativo). */
+export function normalizeDiscount(
+  type?: string | null,
+  value?: number | string | null,
+): BundleDiscount {
+  const t = typeof type === "string" && isDiscountType(type) ? type : "none";
+  let v = typeof value === "string" ? parseFloat(value.replace(",", ".")) : value ?? 0;
+  if (typeof v !== "number" || isNaN(v) || v < 0) v = 0;
+  if (t === "percentage") v = Math.min(v, 100);
+  if (t === "none" || v === 0) return { ...NO_DISCOUNT };
+  return { type: t, value: v };
+}
+
+export type BundleTotals = {
+  subtotal: number; // soma dos itens, em centavos
+  total: number; // com desconto, em centavos
+  savings: number; // subtotal - total, em centavos
+  percent: number; // economia arredondada, para o badge (-14%)
+};
+
+/**
+ * Totais do bundle a partir do subtotal em centavos.
+ * Fonte única do cálculo — o storefront (JS puro) replica esta mesma regra.
+ */
+export function computeTotals(
+  subtotalCents: number,
+  discount?: BundleDiscount | null,
+): BundleTotals {
+  const subtotal = Math.max(0, Math.round(subtotalCents || 0));
+  const d = discount && discount.type !== "none" ? discount : null;
+  let savings = 0;
+  if (d) {
+    savings =
+      d.type === "percentage"
+        ? Math.round((subtotal * d.value) / 100)
+        : Math.round(d.value * 100);
+  }
+  if (savings > subtotal) savings = subtotal;
+  const total = subtotal - savings;
+  const percent = subtotal > 0 ? Math.round((savings / subtotal) * 100) : 0;
+  return { subtotal, total, savings, percent };
+}
 
 /** Mescla um estilo parcial (do DB) com os defaults, garantindo todos os campos. */
 export function mergeStyle(partial?: Partial<ComponentStyle> | null): ComponentStyle {
