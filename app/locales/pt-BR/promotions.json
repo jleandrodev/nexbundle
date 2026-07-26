@@ -1,0 +1,19 @@
+{
+  "list": {
+    "title": "Ver promoções"
+  },
+  "sync": {
+    "dashboardHint": "Algumas promoções não sincronizaram com a Shopify. Abra a lista para ver os detalhes."
+  },
+  "status": {
+    "live": "No ar",
+    "scheduled": "Agendada",
+    "paused": "Pausada",
+    "error": "Erro",
+    "ended": "Encerrada"
+  },
+  "timeline": {
+    "now": "agora",
+    "empty": "Nenhuma promoção nesta semana."
+  }
+}

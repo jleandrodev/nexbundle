@@ -1,58 +1,21 @@
 {
-  "title": "Painel",
-  "planDevelopment": "Desenvolvimento (grátis)",
-  "planNone": "Sem plano",
-  "usageUnlimited": "Ilimitado",
-  "usage": "{{used}} / {{limit}} produtos",
-  "status": {
-    "heading": "Status do Buy Together",
-    "active": "Ativo",
-    "noComponents": "Sem componentes",
-    "configured": "Seus componentes de compra conjunta estão configurados. Verifique se o bloco está no tema.",
-    "empty": "Crie seu primeiro componente para começar a sugerir produtos juntos."
+  "title": "Promoções",
+  "subtitle": "Fuso de exibição: {{tz}}",
+  "newPromotion": "Nova promoção",
+  "empty": {
+    "heading": "Crie sua primeira promoção",
+    "action": "Nova promoção",
+    "body": "Agende janelas de promoção por dia da semana e horário. O que está no ar e o que vem a seguir aparece aqui."
   },
-  "plan": {
-    "heading": "Plano {{plan}}",
-    "devStore": "Dev store",
-    "nearLimit": "Perto do limite",
-    "change": "Mudar",
-    "choose": "Escolher",
-    "usage": "Produtos com Buy Together: {{usage}}"
+  "stats": {
+    "live": "No ar agora",
+    "scheduled": "Agendadas",
+    "usage": "Uso do plano"
   },
-  "kpis": {
-    "overview": "Visão geral · últimos {{days}} dias",
-    "days7": "7 dias",
-    "days30": "30 dias",
-    "impressions": "Impressões",
-    "clicks": "Cliques (add ao carrinho)",
-    "ctr": "CTR"
-  },
-  "guide": {
-    "heading": "Guia de início",
-    "progress": "{{done}}/{{total}} concluídos",
-    "stepPlan": "Escolher um plano",
-    "stepComponent": "Criar um componente",
-    "stepTheme": "Ativar o bloco no tema",
-    "choosePlan": "Escolher plano",
-    "createComponent": "Criar componente"
-  },
-  "theme": {
-    "heading": "Ative o Buy Together no seu tema",
-    "body": "O widget não aparece sozinho: adicione o bloco à página de produto pelo editor de tema. Escolha onde ele entra — abre o editor com o bloco já inserido; depois é só posicionar e <bold>Salvar</bold>.",
-    "addSection": "Adicionar em seção própria",
-    "addInline": "Adicionar junto ao produto"
-  },
-  "metrics": {
-    "emptyHeading": "Crie seu primeiro componente",
-    "emptyBody": "Vincule um produto principal a produtos que combinam. Depois adicione o bloco “Buy Together” na página de produto pelo editor de tema.",
-    "byTemplate": "Por template",
-    "byProduct": "Por produto",
-    "noEvents": "Sem eventos ainda neste período.",
-    "noEventsAlt": "Ainda não há eventos neste período.",
-    "colTemplate": "Template",
-    "colProduct": "Produto",
-    "colImpressions": "Impressões",
-    "colClicks": "Cliques",
-    "colCtr": "CTR"
-  }
+  "liveNow": "No ar agora",
+  "nothingLive": "Nada no ar neste momento.",
+  "endsIn": "Termina em",
+  "upNext": "A seguir",
+  "nothingUpcoming": "Nenhuma promoção agendada.",
+  "syncIssues": "{{count}} com problema de sincronização"
 }

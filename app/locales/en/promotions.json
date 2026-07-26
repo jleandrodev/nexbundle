@@ -1,0 +1,19 @@
+{
+  "list": {
+    "title": "View promotions"
+  },
+  "sync": {
+    "dashboardHint": "Some promotions didn't sync with Shopify. Open the list to see the details."
+  },
+  "status": {
+    "live": "Live",
+    "scheduled": "Scheduled",
+    "paused": "Paused",
+    "error": "Error",
+    "ended": "Ended"
+  },
+  "timeline": {
+    "now": "now",
+    "empty": "No promotions this week."
+  }
+}
