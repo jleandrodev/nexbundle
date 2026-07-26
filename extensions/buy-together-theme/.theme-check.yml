@@ -1,8 +1,13 @@
 # Theme Check — extensão de tema do NexBundle.
+# IMPORTANTE: precisa estender a config de theme app extension, senão o theme-check
+# valida os blocos como seções comuns e rejeita target/stylesheet/javascript.
+extends: theme-check:theme-app-extension
+
 # O buy-together.js concentra layouts, variantes, quantidade e cálculo de desconto
-# num único asset (~23 KB). Elevamos o limite do rule de tamanho para não travar o
-# `shopify app deploy`. Perf real é acompanhada pelo Core Web Vitals (BFS) — ver
-# deploy/LAUNCH.md; minificar o asset com um build step é o próximo passo de otimização.
+# num único asset (~23 KB). Elevamos o limite para não travar o `shopify app deploy`.
+# Perf real é acompanhada pelo Core Web Vitals (BFS) — ver deploy/LAUNCH.md; minificar
+# o asset com um build step é o próximo passo de otimização.
 AssetSizeAppBlockJavaScript:
   enabled: true
-  threshold_in_bytes: 40000
+  severity: 0
+  thresholdInBytes: 40000
