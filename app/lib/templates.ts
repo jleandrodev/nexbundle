@@ -9,7 +9,7 @@ export type TemplateMeta = {
   id: TemplateId;
   name: string;
   description: string;
-  // Imagem do card da galeria (o usuário vai fornecer depois). Placeholder por enquanto.
+  // Imagem do card da galeria (servida de public/ — ex.: /side-by-side.png).
   image: string | null;
 };
 
@@ -19,21 +19,21 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Produtos lado a lado",
     description:
       "Cards dos dois produtos no formato de vitrine e uma coluna com o total e o botão.",
-    image: null,
+    image: "/side-by-side.png",
   },
   {
     id: "list",
     name: "Lista de produtos",
     description:
       "Lista vertical dos produtos que combinam, com o total e um botão para levar tudo.",
-    image: null,
+    image: "/list.png",
   },
   {
     id: "compact",
     name: "Compacto",
     description:
       "Faixa enxuta com o produto sugerido e o botão — ideal perto do botão comprar.",
-    image: null,
+    image: "/compact.png",
   },
 ];
 
