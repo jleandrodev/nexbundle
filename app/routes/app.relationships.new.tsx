@@ -44,7 +44,7 @@ export default function TemplateGallery() {
                 {/* Imagem do template (placeholder até o usuário enviar as artes) */}
                 <div
                   style={{
-                    aspectRatio: "16 / 10",
+                    aspectRatio: "4 / 3",
                     background:
                       "linear-gradient(135deg, #EEF1F6 0%, #E3E8F0 100%)",
                     display: "flex",
