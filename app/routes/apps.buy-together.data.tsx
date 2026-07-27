@@ -25,18 +25,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { session, admin } = await authenticate.public.appProxy(request);
 
   // Loja não instalada / sessão ausente -> desliga silenciosamente.
-  // `reason` só existe para diagnóstico (o storefront ignora campos extras).
-  if (!session || !admin) return json({ enabled: false, reason: "no_session" });
+  if (!session || !admin) return json({ enabled: false });
 
   const url = new URL(request.url);
   const mainProductId = toProductGid(url.searchParams.get("product_id"));
-  if (!mainProductId) return json({ enabled: false, reason: "no_product_id" });
+  if (!mainProductId) return json({ enabled: false });
 
   const resolved = await resolveForProduct(session.shop, mainProductId);
-
   if (!resolved || resolved.companions.length === 0) {
-    // Nenhum componente ATIVO com este produto como principal (nem companheiro bi).
-    return json({ enabled: false, reason: "no_active_component" });
+    return json({ enabled: false });
   }
 
   // Enriquece companheiros + produto principal numa via barata.
@@ -46,37 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   const usable = companions.filter((c) => c.variantId && c.available);
-  if (usable.length === 0) {
-    // Sonda: query CRUA do produto principal via o token do App Proxy (offline),
-    // pra ver status HTTP + erros GraphQL reais (scope/token vs produto inexistente).
-    // `shop { name }` não exige scope → testa se o TOKEN é válido.
-    // `currentAppInstallation.accessScopes` → lista os scopes REAIS do token.
-    let probe: unknown = null;
-    try {
-      const r = await admin.graphql(
-        `#graphql
-         query Probe {
-           shop { name myshopifyDomain }
-           currentAppInstallation { accessScopes { handle } }
-         }`,
-      );
-      probe = { status: r.status, body: await r.json() };
-    } catch (e) {
-      probe = { threw: e instanceof Error ? e.message : String(e) };
-    }
-    return json({
-      enabled: false,
-      reason: "no_usable_companion",
-      debug: {
-        companionsInComponent: resolved.companions.length,
-        companionsResolved: companions.length,
-        companionsWithVariant: companions.filter((c) => c.variantId).length,
-        companionsAvailable: companions.filter((c) => c.available).length,
-        mainProductResolved: Boolean(mainProduct),
-        probe,
-      },
-    });
-  }
+  if (usable.length === 0) return json({ enabled: false });
 
   return json({
     enabled: true,
