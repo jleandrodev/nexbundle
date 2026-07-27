@@ -102,7 +102,9 @@
     "addAll": "Add all to cart",
     "buyNow": "Buy it now",
     "addMore": "Add more products",
-    "viewMoreOptions": "View more options"
+    "viewMoreOptions": "View more options",
+    "chooseVariants": "Choose the variants",
+    "singleVariant": "No variants"
   },
   "errors": {
     "limitReached": "You've reached your plan limit ({{limit}} products). Upgrade under \"Plans\".",

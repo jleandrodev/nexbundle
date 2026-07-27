@@ -102,6 +102,7 @@ export default function ComponentPreview({
   // Produtos mudam enquanto o lojista edita: refaz as linhas mantendo o padrão (tudo marcado).
   const signature = [mainP, ...comps].map((p) => p.title).join("|");
   const [lastSignature, setLastSignature] = useState(signature);
+  const [variantModal, setVariantModal] = useState(false);
   if (signature !== lastSignature) {
     setLastSignature(signature);
     setLines([mainP, ...comps].map((p) => ({ product: p, checked: true, qty: 1 })));
@@ -172,9 +173,12 @@ export default function ComponentPreview({
     );
   }
 
-  function Options({ product }: { product: PreviewProduct }) {
+  /** Seletores de variante de um produto (usados no MODAL, não mais inline no card). */
+  function VariantSelects({ product }: { product: PreviewProduct }) {
     const names = product.optionNames || [];
-    if (!names.length || !s.showVariantPicker) return null;
+    if (!names.length) {
+      return <span className="bt-summary__label">{t("preview.singleVariant")}</span>;
+    }
     return (
       <div className="bt-item__options">
         {names.map((name) => (
@@ -230,7 +234,6 @@ export default function ComponentPreview({
         <div className="bt-item__body">
           <p className="bt-item__name">{line.product.title}</p>
           <Prices product={line.product} />
-          <Options product={line.product} />
           <Qty line={line} index={index} />
         </div>
       </article>
@@ -244,7 +247,6 @@ export default function ComponentPreview({
         <div className="bt-item__body">
           <p className="bt-item__name">{line.product.title}</p>
           <Prices product={line.product} />
-          <Options product={line.product} />
         </div>
         <Qty line={line} index={index} />
       </article>
@@ -269,12 +271,22 @@ export default function ComponentPreview({
           </p>
         ) : null}
         <div className="bt-actions">
-          <button type="button" className="bt-btn bt-btn--primary" disabled={!selected.length}>
+          <button
+            type="button"
+            className="bt-btn bt-btn--primary"
+            disabled={!selected.length}
+            onClick={() => setVariantModal(true)}
+          >
             <Icon>{CART_SVG}</Icon>
             <span>{s.addButtonText || t("preview.addAll")}</span>
           </button>
           {s.showBuyNow ? (
-            <button type="button" className="bt-btn bt-btn--secondary" disabled={!selected.length}>
+            <button
+              type="button"
+              className="bt-btn bt-btn--secondary"
+              disabled={!selected.length}
+              onClick={() => setVariantModal(true)}
+            >
               <Icon>{TAG_SVG}</Icon>
               <span>{s.buyNowText || t("preview.buyNow")}</span>
             </button>
@@ -332,6 +344,54 @@ export default function ComponentPreview({
             </div>
             <Summary variant="footer" />
           </>
+        ) : null}
+
+        {variantModal ? (
+          <div
+            className="bt-modal"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setVariantModal(false)}
+          >
+            <div className="bt-modal__panel" onClick={(e) => e.stopPropagation()}>
+              <div className="bt-modal__head">
+                <h3 className="bt-modal__title">{t("preview.chooseVariants")}</h3>
+                <button
+                  type="button"
+                  className="bt-modal__close"
+                  aria-label="×"
+                  onClick={() => setVariantModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="bt-modal__body">
+                {selected.map((line, i) => (
+                  <div className="bt-modal__row" key={i}>
+                    {line.product.image ? (
+                      <img className="bt-modal__thumb" src={line.product.image} alt="" />
+                    ) : (
+                      <div className="bt-modal__thumb" aria-hidden="true" />
+                    )}
+                    <div className="bt-modal__info">
+                      <p className="bt-modal__name">{line.product.title}</p>
+                      <VariantSelects product={line.product} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="bt-modal__foot">
+                <button
+                  type="button"
+                  className="bt-btn bt-btn--primary"
+                  onClick={() => setVariantModal(false)}
+                >
+                  <Icon>{CART_SVG}</Icon>
+                  <span>{s.addButtonText || t("preview.addAll")}</span>
+                </button>
+              </div>
+            </div>
+          </div>
         ) : null}
       </div>
     </div>

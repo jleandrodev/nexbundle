@@ -249,21 +249,36 @@
 
 .bt-sbs {
   display: flex;
-  align-items: flex-start;
-  gap: 24px;
+  align-items: stretch;
+  gap: 16px;
 }
+/* Cards de produto + resumo são colunas de MESMO tamanho, sem vão em branco.
+   Os N cards (2 shares p/ o par comum) e o resumo (1 share) preenchem a linha. */
 .bt-sbs__items {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1 1 auto;
+  align-items: stretch;
+  gap: 16px;
+  flex: 2 1 0;
   min-width: 0;
-  flex-wrap: wrap;
 }
-.bt-sbs .bt-item--card { flex: 0 1 140px; min-width: 120px; }
+.bt-sbs .bt-item--card {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px;
+  border: var(--bt-card-border); /* "none" quando cardBorder desligado */
+  border-radius: var(--bt-radius);
+}
+/* Dentro do card já bordado, a imagem não repete a borda. */
+.bt-sbs .bt-item__media { border: none; }
 /* O "+" alinha na altura da imagem, não do card inteiro. */
 .bt-sbs .bt-plus { align-self: flex-start; margin-top: 52px; }
-.bt-sbs .bt-summary--aside { flex: 0 0 220px; padding-top: 4px; }
+.bt-sbs .bt-summary--aside {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px;
+  border: var(--bt-card-border);
+  border-radius: var(--bt-radius);
+}
 .bt-sbs .bt-summary__head { display: flex; flex-direction: column; gap: 4px; }
 /* Coluna estreita: "de" em linha própria, "por" + badge embaixo (igual à referência). */
 .bt-sbs .bt-summary--aside .bt-summary__compare { flex: 1 0 100%; }
@@ -343,3 +358,59 @@
 .bt-root--compact .bt-summary--footer { margin-top: 12px; padding-top: 12px; }
 .bt-root--compact .bt-actions { flex-direction: row; flex-wrap: wrap; }
 .bt-root--compact .bt-btn { width: auto; flex: 1 1 180px; }
+
+/* ----------------------------------------------------- modal de variantes */
+/* Aberto ao clicar em "adicionar ao carrinho": o comprador escolhe a variante
+   de cada produto selecionado antes de ir ao carrinho. Usado no preview (admin)
+   e na vitrine (buy-together.js monta o mesmo DOM). */
+.bt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 15, 25, 0.55);
+}
+.bt-modal__panel {
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--bt-bg, #fff);
+  color: var(--bt-text, #1a1a1a);
+  border-radius: var(--bt-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.bt-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--bt-border);
+}
+.bt-modal__title { font-size: 16px; font-weight: 700; margin: 0; }
+.bt-modal__close {
+  border: 0;
+  background: none;
+  color: var(--bt-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+}
+.bt-modal__body { padding: 12px 18px; display: flex; flex-direction: column; gap: 14px; }
+.bt-modal__row { display: flex; gap: 12px; align-items: flex-start; }
+.bt-modal__thumb {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--bt-media-bg);
+  object-fit: contain;
+}
+.bt-modal__info { flex: 1 1 auto; min-width: 0; }
+.bt-modal__name { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+.bt-modal__foot { padding: 14px 18px; border-top: 1px solid var(--bt-border); }
