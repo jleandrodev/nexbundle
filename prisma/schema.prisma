@@ -58,8 +58,10 @@ model Relationship {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  @@unique([shop, mainProductId]) // 1 relacionamento por produto principal por loja
+  // Vários componentes podem ter o MESMO produto principal (ex.: kits diferentes).
+  // A vitrine mostra o 1º ativo do produto (ver resolveForProduct).
   @@index([shop])
+  @@index([shop, mainProductId])
 }
 
 model Companion {

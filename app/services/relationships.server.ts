@@ -45,8 +45,11 @@ export async function getRelationshipByMain(shop: string, mainProductId: string)
  * Retorna layout + a lista de produtos (gid + variante) para o proxy enriquecer.
  */
 export async function resolveForProduct(shop: string, productId: string) {
+  // Pode haver mais de um componente com o mesmo principal: mostra o 1º ativo
+  // (o mais antigo), de forma determinística.
   const asMain = await prisma.relationship.findFirst({
     where: { shop, mainProductId: productId, enabled: true },
+    orderBy: { createdAt: "asc" },
     include: { companions: { orderBy: { position: "asc" } } },
   });
   if (asMain && asMain.companions.length > 0) {
