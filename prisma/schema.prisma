@@ -73,27 +73,6 @@ model Companion {
   @@index([relationshipId])
 }
 
-// Promoção agendada por loja. As janelas (live/scheduled) são derivadas de recurrence
-// + weekdays + startTime/endTime no `timezone`, dentro de validFrom/validUntil.
-model Promotion {
-  id         String    @id @default(cuid())
-  shop       String
-  name       String    @default("")
-  enabled    Boolean   @default(true)
-  timezone   String    @default("America/Sao_Paulo") // IANA
-  recurrence String    @default("weekly") // once | daily | weekly
-  weekdays   String    @default("") // CSV de 0-6 (dom-sáb); usado quando recurrence=weekly
-  startTime  String    @default("00:00") // HH:mm no timezone
-  endTime    String    @default("23:59") // HH:mm; se <= startTime, a janela vira o dia
-  validFrom  DateTime? // início da validade (para once/daily/weekly)
-  validUntil DateTime? // fim da validade
-  syncError  String? // motivo do erro de sync com a Shopify; null = ok (status "error" quando setado)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  @@index([shop])
-}
-
 // Preferências do lojista por loja (1 registro por shop). Ex.: idioma do painel admin.
 model ShopPreference {
   shop        String   @id

@@ -20,7 +20,6 @@ export const namespaces = [
   "templates",
   "auth",
   "support",
-  "promotions",
 ] as const;
 
 /**
