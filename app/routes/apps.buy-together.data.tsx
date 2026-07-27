@@ -47,8 +47,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const usable = companions.filter((c) => c.variantId && c.available);
   if (usable.length === 0) {
-    // Diagnóstico: quantos companheiros o componente tem, quantos resolveram na
-    // Admin API, e quantos têm variante DISPONÍVEL (availableForSale).
+    // Sonda: query CRUA do produto principal via o token do App Proxy (offline),
+    // pra ver status HTTP + erros GraphQL reais (scope/token vs produto inexistente).
+    let probe: unknown = null;
+    try {
+      const r = await admin.graphql(
+        `#graphql
+         query Probe($id: ID!) { node(id: $id) { ... on Product { id title } } }`,
+        { variables: { id: mainProductId } },
+      );
+      probe = { status: r.status, body: await r.json() };
+    } catch (e) {
+      probe = { threw: e instanceof Error ? e.message : String(e) };
+    }
     return json({
       enabled: false,
       reason: "no_usable_companion",
@@ -58,6 +69,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         companionsWithVariant: companions.filter((c) => c.variantId).length,
         companionsAvailable: companions.filter((c) => c.available).length,
         mainProductResolved: Boolean(mainProduct),
+        probe,
       },
     });
   }
