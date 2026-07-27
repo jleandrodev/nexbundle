@@ -216,6 +216,13 @@
     return lines;
   }
 
+  // Raiz do carrinho respeitando locale/market (ex.: "/", "/en-us/"). Sem isso,
+  // "/cart/add.js" fixo quebra em lojas multi-idioma/mercado.
+  function cartRoot() {
+    var r = window.Shopify && window.Shopify.routes && window.Shopify.routes.root;
+    return r || "/";
+  }
+
   function addToCart(state, destination) {
     var lines = selectedLines(state);
     if (!lines.length) return;
@@ -226,14 +233,23 @@
         l.properties[BUNDLE_PROP] = state.relationshipId;
       });
     }
-    var go = function () { window.location.href = destination === "checkout" ? "/checkout" : "/cart"; };
-    fetch("/cart/add.js", {
+    var root = cartRoot();
+    var go = function () {
+      window.location.href = destination === "checkout" ? root + "checkout" : root + "cart";
+    };
+    fetch(root + "cart/add.js", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ items: lines }),
     })
-      .then(function (r) { return r.json(); })
-      .then(function () {
+      .then(function (r) {
+        if (!r.ok) {
+          // 422 = variante indisponível/estoque/validação. NÃO redireciona (senão o
+          // carrinho parece vazio e o lojista acha que o botão não funciona).
+          return r.json().catch(function () { return {}; }).then(function (err) {
+            throw new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+          });
+        }
         sendEvent({
           type: "click",
           mainProductId: state.mainProductId,
@@ -242,7 +258,11 @@
         });
         go();
       })
-      .catch(go);
+      .catch(function (e) {
+        try { console.error("[buy-together] add to cart falhou:", e); } catch (_) {}
+        // Feedback em vez de redirecionar pra um carrinho vazio.
+        alert(i18n(state.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
+      });
   }
 
   /* --------------------------------------------------------------- peças */
