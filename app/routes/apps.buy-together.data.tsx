@@ -49,12 +49,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (usable.length === 0) {
     // Sonda: query CRUA do produto principal via o token do App Proxy (offline),
     // pra ver status HTTP + erros GraphQL reais (scope/token vs produto inexistente).
+    // `shop { name }` não exige scope → testa se o TOKEN é válido.
+    // `currentAppInstallation.accessScopes` → lista os scopes REAIS do token.
     let probe: unknown = null;
     try {
       const r = await admin.graphql(
         `#graphql
-         query Probe($id: ID!) { node(id: $id) { ... on Product { id title } } }`,
-        { variables: { id: mainProductId } },
+         query Probe {
+           shop { name myshopifyDomain }
+           currentAppInstallation { accessScopes { handle } }
+         }`,
       );
       probe = { status: r.status, body: await r.json() };
     } catch (e) {
