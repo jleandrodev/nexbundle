@@ -573,7 +573,13 @@
     var productId = root.getAttribute("data-bt-product-id");
     if (!productId) { root.remove(); return; }
 
-    fetch(PROXY + "/data?product_id=" + encodeURIComponent(productId), { headers: { Accept: "application/json" } })
+    // Layout do BLOCO (side-by-side | list | compact): o backend só resolve um
+    // componente com esse template → o bloco só renderiza se existir tal componente.
+    var blockTemplate = root.getAttribute("data-bt-template") || "";
+    var query = "?product_id=" + encodeURIComponent(productId);
+    if (blockTemplate) query += "&layout=" + encodeURIComponent(blockTemplate);
+
+    fetch(PROXY + "/data" + query, { headers: { Accept: "application/json" } })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.enabled || !data.companions || !data.companions.length) { root.remove(); return; }

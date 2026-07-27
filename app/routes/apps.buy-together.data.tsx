@@ -31,7 +31,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const mainProductId = toProductGid(url.searchParams.get("product_id"));
   if (!mainProductId) return json({ enabled: false });
 
-  const resolved = await resolveForProduct(session.shop, mainProductId);
+  // O bloco de tema informa seu layout; só resolve componente com esse template.
+  const layout = url.searchParams.get("layout");
+  const resolved = await resolveForProduct(session.shop, mainProductId, layout);
   if (!resolved || resolved.companions.length === 0) {
     return json({ enabled: false });
   }

@@ -42,13 +42,21 @@ export async function getRelationshipByMain(shop: string, mainProductId: string)
  * Resolve o que mostrar na página de um produto (App Proxy), tratando uni/bi:
  *  1) Se o produto é PRINCIPAL de um relacionamento ativo → mostra os companheiros dele.
  *  2) Senão, se é COMPANHEIRO de um relacionamento BIDIRECIONAL ativo → mostra o principal.
+ * `layout` (opcional): cada BLOCO de tema representa um layout; passando-o, só resolve
+ * um componente com aquele template. Assim o bloco "lado a lado" só renderiza se o
+ * produto tiver um componente side-by-side (senão nada é renderizado).
  * Retorna layout + a lista de produtos (gid + variante) para o proxy enriquecer.
  */
-export async function resolveForProduct(shop: string, productId: string) {
+export async function resolveForProduct(
+  shop: string,
+  productId: string,
+  layout?: string | null,
+) {
+  const templateFilter = layout ? { template: layout } : {};
   // Pode haver mais de um componente com o mesmo principal: mostra o 1º ativo
-  // (o mais antigo), de forma determinística.
+  // (o mais antigo) que casa com o layout pedido, de forma determinística.
   const asMain = await prisma.relationship.findFirst({
-    where: { shop, mainProductId: productId, enabled: true },
+    where: { shop, mainProductId: productId, enabled: true, ...templateFilter },
     orderBy: { createdAt: "asc" },
     include: { companions: { orderBy: { position: "asc" } } },
   });
@@ -70,6 +78,7 @@ export async function resolveForProduct(shop: string, productId: string) {
       shop,
       enabled: true,
       direction: "bi",
+      ...templateFilter,
       companions: { some: { companionProductId: productId } },
     },
   });

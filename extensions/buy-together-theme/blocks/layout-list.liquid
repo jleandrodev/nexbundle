@@ -1,13 +1,13 @@
 {% comment %}
-  Buy Together — Layout B ("compacto")
-  Só infos do companheiro + botão "adicionar ambos". Feito para arrastar para dentro
-  da product-information section, acima ou abaixo do botão comprar.
-  Mesmo asset JS decide o render por data-bt-layout.
+  Buy Together — Layout Lista ("list")
+  Companheiros em lista vertical + botão "adicionar ambos". Só renderiza se o produto
+  tiver um componente configurado com o template "list" (data-bt-template).
+  Mesmo asset JS decide o render por data.template vindo do App Proxy.
 {% endcomment %}
 <div
-  class="bt-root bt-layout-b"
-  data-bt-layout="B"
-  data-bt-template="compact"
+  class="bt-root bt-layout-list"
+  data-bt-layout="LIST"
+  data-bt-template="list"
   data-bt-product-id="{{ product.id }}"
   data-bt-variant-id="{{ product.selected_or_first_available_variant.id }}"
   data-bt-variant-price="{{ product.selected_or_first_available_variant.price }}"
@@ -34,7 +34,7 @@
 
 {% schema %}
 {
-  "name": "t:buy_together.layout_b_name",
+  "name": "t:buy_together.layout_list_name",
   "target": "section",
   "stylesheet": "buy-together.css",
   "javascript": "buy-together.js",
