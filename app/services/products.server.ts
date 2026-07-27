@@ -59,7 +59,7 @@ const PRODUCTS_QUERY = `#graphql
         id
         title
         handle
-        featuredImage { url(transform: { maxWidth: 300, maxHeight: 300 }) altText }
+        featuredImage { url altText }
         variants(first: $variants) {
           nodes {
             id
@@ -67,7 +67,7 @@ const PRODUCTS_QUERY = `#graphql
             price
             compareAtPrice
             availableForSale
-            image { url(transform: { maxWidth: 300, maxHeight: 300 }) }
+            image { url }
             selectedOptions { name value }
           }
         }
