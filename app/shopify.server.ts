@@ -58,9 +58,10 @@ const shopify = shopifyApp({
   },
   future: {
     unstable_newEmbeddedAuthStrategy: true,
-    // Token offline não-expirável: o App Proxy usa a sessão offline em background.
-    // Ver docs/learnings/gotchas.md #9 (evita 401 no unauthenticated/appProxy).
-    expiringOfflineAccessTokens: false,
+    // Com token exchange, o token offline correto é o EXPIRÁVEL (renovável). O
+    // não-expirável (false) gerava um token que a Admin API rejeitava com 403 no
+    // App Proxy (loja nova, token novo, mesmo assim 403).
+    expiringOfflineAccessTokens: true,
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
