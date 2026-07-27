@@ -25,16 +25,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { session, admin } = await authenticate.public.appProxy(request);
 
   // Loja não instalada / sessão ausente -> desliga silenciosamente.
-  if (!session || !admin) return json({ enabled: false });
+  // `reason` só existe para diagnóstico (o storefront ignora campos extras).
+  if (!session || !admin) return json({ enabled: false, reason: "no_session" });
 
   const url = new URL(request.url);
   const mainProductId = toProductGid(url.searchParams.get("product_id"));
-  if (!mainProductId) return json({ enabled: false });
+  if (!mainProductId) return json({ enabled: false, reason: "no_product_id" });
 
   const resolved = await resolveForProduct(session.shop, mainProductId);
 
   if (!resolved || resolved.companions.length === 0) {
-    return json({ enabled: false });
+    // Nenhum componente ATIVO com este produto como principal (nem companheiro bi).
+    return json({ enabled: false, reason: "no_active_component" });
   }
 
   // Enriquece companheiros + produto principal numa via barata.
@@ -44,7 +46,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   const usable = companions.filter((c) => c.variantId && c.available);
-  if (usable.length === 0) return json({ enabled: false });
+  if (usable.length === 0) {
+    // Diagnóstico: quantos companheiros o componente tem, quantos resolveram na
+    // Admin API, e quantos têm variante DISPONÍVEL (availableForSale).
+    return json({
+      enabled: false,
+      reason: "no_usable_companion",
+      debug: {
+        companionsInComponent: resolved.companions.length,
+        companionsResolved: companions.length,
+        companionsWithVariant: companions.filter((c) => c.variantId).length,
+        companionsAvailable: companions.filter((c) => c.available).length,
+        mainProductResolved: Boolean(mainProduct),
+      },
+    });
+  }
 
   return json({
     enabled: true,
