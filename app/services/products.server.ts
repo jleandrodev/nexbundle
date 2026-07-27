@@ -59,7 +59,6 @@ const PRODUCTS_QUERY = `#graphql
         id
         title
         handle
-        onlineStoreUrl
         featuredImage { url(transform: { maxWidth: 300, maxHeight: 300 }) altText }
         variants(first: $variants) {
           nodes {
@@ -93,13 +92,19 @@ export async function enrichProducts(
   const ids = items.map((i) => i.productId).filter(Boolean);
   if (ids.length === 0) return [];
 
-  const res = await admin.graphql(PRODUCTS_QUERY, {
-    variables: { ids, variants: VARIANTS_LIMIT },
-  });
-  const body = (await res.json()) as {
-    data?: { nodes?: Array<any | null> };
-  };
-  const nodes = body?.data?.nodes ?? [];
+  // Blindagem: um erro do Admin API (scope, custo, produto removido) NÃO pode derrubar
+  // a página inteira. Degrada para "sem enriquecimento" (a UI cai no id/nome salvo).
+  let nodes: Array<any | null> = [];
+  try {
+    const res = await admin.graphql(PRODUCTS_QUERY, {
+      variables: { ids, variants: VARIANTS_LIMIT },
+    });
+    const body = (await res.json()) as { data?: { nodes?: Array<any | null> } };
+    nodes = body?.data?.nodes ?? [];
+  } catch (e) {
+    console.error("[enrichProducts] Admin API falhou:", e);
+    return [];
+  }
 
   // Mapa por productId para reidratar na ordem de `items`.
   const byId = new Map<string, any>();
@@ -152,7 +157,7 @@ export async function enrichProducts(
       price: chosen.price,
       compareAtPrice: chosen.compareAtPrice,
       available: variants.some((v) => v.available),
-      url: node.onlineStoreUrl || (node.handle ? `/products/${node.handle}` : "#"),
+      url: node.handle ? `/products/${node.handle}` : "#",
       optionNames,
       variants,
     });

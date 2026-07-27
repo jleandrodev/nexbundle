@@ -37,8 +37,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
 
   // Comportamento preservado da template: loja embedada volta pro app.
-  if (url.searchParams.get("shop")) {
-    throw redirect(`/app?${url.searchParams.toString()}`);
+  // Qualquer carga vinda do Shopify (embedded/admin/OAuth) vai DIRETO pro app.
+  // A LP pública só aparece em visita direta ao domínio (sem nenhum destes parâmetros),
+  // garantindo que o painel no admin nunca renderize a landing page.
+  const p = url.searchParams;
+  if (
+    p.get("shop") ||
+    p.get("host") ||
+    p.get("embedded") ||
+    p.get("id_token") ||
+    p.get("hmac") ||
+    p.get("session")
+  ) {
+    throw redirect(`/app?${p.toString()}`);
   }
 
   return { showForm: Boolean(login) };
