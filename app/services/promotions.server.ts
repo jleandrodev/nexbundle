@@ -95,3 +95,75 @@ export async function updatePromotion(
 export async function deletePromotion(shop: string, id: string): Promise<void> {
   await prisma.promotion.deleteMany({ where: { shop, id } });
 }
+
+const HHMM = /^([01]?\d|2[0-3]):[0-5]\d$/;
+
+/** Só 0..6, a partir de CSV ("1,3,5") ou JSON ("[1,3,5]"). */
+function parseWeekdaysField(raw: string): number[] {
+  const s = (raw || "").trim();
+  if (!s) return [];
+  let nums: number[] = [];
+  if (s.startsWith("[")) {
+    try {
+      const arr = JSON.parse(s);
+      if (Array.isArray(arr)) nums = arr.map((n) => parseInt(String(n), 10));
+    } catch {
+      nums = [];
+    }
+  } else {
+    nums = s.split(",").map((x) => parseInt(x, 10));
+  }
+  return [...new Set(nums)].filter((n) => Number.isInteger(n) && n >= 0 && n <= 6);
+}
+
+/** Data local simples (meia-noite local) a partir de "yyyy-mm-dd"; vazio → null. */
+function parseDateField(raw: string): Date | null {
+  const s = (raw || "").trim();
+  if (!s) return null;
+  const d = new Date(`${s}T00:00:00`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Lê o FormData do PromotionForm e valida. Erro → chave i18n (namespace "promotions").
+ */
+export function parsePromotionForm(
+  form: FormData,
+):
+  | { ok: true; value: PromotionInput }
+  | { ok: false; error: string } {
+  const name = String(form.get("name") || "").trim();
+  const enabled = String(form.get("enabled") || "1") === "1";
+  const recRaw = String(form.get("recurrence") || "daily");
+  const recurrence: Recurrence =
+    recRaw === "once" || recRaw === "weekly" ? recRaw : "daily";
+  const weekdays = parseWeekdaysField(String(form.get("weekdays") || ""));
+  const startTime = String(form.get("startTime") || "").trim();
+  const endTime = String(form.get("endTime") || "").trim();
+  const timezone = String(form.get("timezone") || "").trim() || "America/Sao_Paulo";
+  const validFrom = parseDateField(String(form.get("validFrom") || ""));
+  const validUntil = parseDateField(String(form.get("validUntil") || ""));
+
+  if (!name) return { ok: false, error: "errors.name" };
+  if (recurrence === "weekly" && weekdays.length < 1) {
+    return { ok: false, error: "errors.weekdays" };
+  }
+  if (!HHMM.test(startTime) || !HHMM.test(endTime)) {
+    return { ok: false, error: "errors.time" };
+  }
+
+  return {
+    ok: true,
+    value: {
+      name,
+      enabled,
+      timezone,
+      recurrence,
+      weekdays: recurrence === "weekly" ? weekdays : [],
+      startTime,
+      endTime,
+      validFrom,
+      validUntil,
+    },
+  };
+}
