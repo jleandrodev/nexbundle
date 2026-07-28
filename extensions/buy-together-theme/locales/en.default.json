@@ -11,6 +11,8 @@
     "you_save": "You save {{amount}} ({{percent}}%)",
     "add_all": "Add all to cart",
     "add_to_cart": "Add to cart",
+    "sold_out": "Sold out",
+    "add_error": "We couldn't add this to your cart. Please try again.",
     "buy_now": "Buy it now",
     "increase": "Increase quantity",
     "decrease": "Decrease quantity"

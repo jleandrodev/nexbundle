@@ -48,6 +48,24 @@ function isDefaultOption(o: { name?: string; value?: string }): boolean {
   return o?.name === "Title" && o?.value === "Default Title";
 }
 
+/**
+ * A variante pode ser vendida pela LOJA ONLINE?
+ *
+ * `availableForSale` sozinho não serve: ele considera estoque em QUALQUER location,
+ * inclusive as que não atendem o Online Store (ex.: fulfillment de terceiro). Aí o
+ * app sugere um produto que o /cart/add.js recusa com 422 "already sold out" — foi
+ * exatamente o que aconteceu com "The 3p Fulfilled Snowboard" na loja demo.
+ *
+ * `sellableOnlineQuantity` é o estoque que a loja online realmente pode vender.
+ * Só vale conferir estoque quando ele é controlado e a venda a descoberto está off.
+ */
+function isSellableOnline(v: any): boolean {
+  if (!v?.availableForSale) return false;
+  if (v.inventoryItem?.tracked === false) return true;
+  if (v.inventoryPolicy === "CONTINUE") return true;
+  return Number(v.sellableOnlineQuantity ?? 0) > 0;
+}
+
 // Limite de variantes trazidas por produto. Cuidado com o custo da query (gotcha #13):
 // nodes() com 50 variantes por produto já é o teto confortável para ~5 produtos.
 const VARIANTS_LIMIT = 50;
@@ -67,6 +85,9 @@ const PRODUCTS_QUERY = `#graphql
             price
             compareAtPrice
             availableForSale
+            inventoryPolicy
+            sellableOnlineQuantity
+            inventoryItem { tracked }
             image { url }
             selectedOptions { name value }
           }
@@ -125,7 +146,7 @@ export async function enrichProducts(
         title: v.title ?? "",
         price: toCents(v.price) ?? 0,
         compareAtPrice: toCents(v.compareAtPrice),
-        available: Boolean(v.availableForSale),
+        available: isSellableOnline(v),
         image: v.image?.url ?? null,
         options: (v.selectedOptions ?? [])
           .filter((o: any) => !isDefaultOption(o))

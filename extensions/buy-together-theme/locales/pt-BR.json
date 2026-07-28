@@ -11,6 +11,8 @@
     "you_save": "Você economiza {{amount}} ({{percent}}%)",
     "add_all": "Adicionar todos ao carrinho",
     "add_to_cart": "Adicionar ao carrinho",
+    "sold_out": "Esgotado",
+    "add_error": "Não foi possível adicionar ao carrinho. Tente novamente.",
     "buy_now": "Comprar agora",
     "increase": "Aumentar quantidade",
     "decrease": "Diminuir quantidade"

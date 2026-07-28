@@ -247,7 +247,9 @@
           // 422 = variante indisponível/estoque/validação. NÃO redireciona (senão o
           // carrinho parece vazio e o lojista acha que o botão não funciona).
           return r.json().catch(function () { return {}; }).then(function (err) {
-            throw new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+            var e = new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+            e.status = r.status;
+            throw e;
           });
         }
         sendEvent({
@@ -260,8 +262,14 @@
       })
       .catch(function (e) {
         try { console.error("[buy-together] add to cart falhou:", e); } catch (_) {}
-        // Feedback em vez de redirecionar pra um carrinho vazio.
-        alert(i18n(state.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
+        // Feedback em vez de redirecionar pra um carrinho vazio. No 422 o Shopify diz
+        // a razão real ("já esgotado", "restam N"); repetir não resolve nada disso,
+        // então mostramos o motivo em vez de pedir pra tentar de novo.
+        alert(
+          e && e.status === 422 && e.message
+            ? e.message
+            : i18n(state.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."),
+        );
       });
   }
 
@@ -569,12 +577,9 @@
 
   // Adiciona UMA sugestão do carrinho. Se ela forma bundle com um item do carrinho
   // (relationshipId + desconto), marca a linha com _bt_bundle p/ a Function aplicar.
-  function addCartSuggestion(ctx, product, st, btn) {
+  function addCartSuggestion(ctx, product, st, btn, sync) {
     var v = st.variant;
-    if (!v || !v.available) {
-      alert(i18n(ctx.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
-      return;
-    }
+    if (!v || !v.available) { sync(); return; }
     var line = { id: Number(v.id), quantity: 1 };
     if (product.relationshipId && product.discount && product.discount.type !== "none") {
       line.properties = {};
@@ -590,7 +595,9 @@
       .then(function (r) {
         if (!r.ok) {
           return r.json().catch(function () { return {}; }).then(function (err) {
-            throw new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+            var e = new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+            e.status = r.status;
+            throw e;
           });
         }
         sendEvent({ type: "click", mainProductId: product.productId, companionProductId: product.productId, layout: "cart" });
@@ -598,8 +605,17 @@
         window.location.reload();
       })
       .catch(function (e) {
-        btn.disabled = false;
         try { console.error("[buy-together] cart add falhou:", e); } catch (_) {}
+        // 422 = a loja não vende essa variante agora (esgotada, estoque insuficiente).
+        // Reabilitar o botão só levaria o cliente a bater na mesma parede: a linha
+        // passa a "esgotado" e o motivo do Shopify é mostrado uma vez.
+        if (e && e.status === 422) {
+          if (st.variant) st.variant.available = false;
+          sync();
+          alert(e.message);
+          return;
+        }
+        btn.disabled = false;
         alert(i18n(ctx.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
       });
   }
@@ -645,6 +661,7 @@
             (v.options || []).forEach(function (o) { selected[o.name] = o.value; });
             priceEl.textContent = formatMoney(v.price, ctx.moneyFormat);
             if (v.image) img.src = v.image;
+            syncAvailability();
           }
         });
         field.appendChild(sel);
@@ -657,12 +674,24 @@
 
     var add = el("button", "bt-btn bt-btn--primary bt-cart-item__add", { type: "button" });
     add.appendChild(icon("cart"));
-    add.appendChild(text("span", null, i18n(ctx.root, "add-cart", "Adicionar ao carrinho")));
+    var addLabel = i18n(ctx.root, "add-cart", "Adicionar ao carrinho");
+    var addText = text("span", null, addLabel);
+    add.appendChild(addText);
+
+    // O botão diz a verdade sobre a variante escolhida: trocar de variante pode
+    // trocar a disponibilidade, e uma variante esgotada não oferece "adicionar".
+    function syncAvailability() {
+      var ok = Boolean(st.variant && st.variant.available);
+      add.disabled = !ok;
+      addText.textContent = ok ? addLabel : i18n(ctx.root, "sold-out", "Esgotado");
+    }
+
     add.addEventListener("click", function (e) {
       e.preventDefault(); e.stopPropagation();
-      addCartSuggestion(ctx, product, st, add);
+      addCartSuggestion(ctx, product, st, add, syncAvailability);
     });
     row.appendChild(add);
+    syncAvailability();
     return row;
   }
 
