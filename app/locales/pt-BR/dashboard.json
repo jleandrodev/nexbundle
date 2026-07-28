@@ -42,6 +42,11 @@
     "addSection": "Adicionar em seção própria",
     "addInline": "Adicionar junto ao produto"
   },
+  "cart": {
+    "heading": "Cross-sell no carrinho",
+    "body": "Mostre produtos que combinam direto na página de carrinho. O bloco junta os companheiros de todos os itens do carrinho, remove o que já foi adicionado e sugere o resto — cada um com seu botão de adicionar.",
+    "add": "Adicionar bloco ao carrinho"
+  },
   "metrics": {
     "emptyHeading": "Crie seu primeiro componente",
     "emptyBody": "Vincule um produto principal a produtos que combinam. Depois adicione o bloco “Buy Together” na página de produto pelo editor de tema.",

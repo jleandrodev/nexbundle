@@ -59,6 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const themeLinks = {
     section: `${editorBase}?template=product&addAppBlockId=${apiKey}/layout-a&target=newAppsSection`,
     inline: `${editorBase}?template=product&addAppBlockId=${apiKey}/layout-b&target=mainSection`,
+    cart: `${editorBase}?template=cart&addAppBlockId=${apiKey}/layout-cart&target=newAppsSection`,
   };
 
   return json({
@@ -347,6 +348,41 @@ export default function Dashboard() {
               </Button>
             </InlineStack>
           </BlockStack>
+        </Card>
+
+        {/* Cross-sell no carrinho */}
+        <Card>
+          <InlineGrid columns={{ xs: 1, md: 2 }} gap="400">
+            <div
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                background: TINTS.info,
+                aspectRatio: "4 / 3",
+              }}
+            >
+              <img
+                src="/cart.png"
+                alt={t("cart.heading")}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            </div>
+            <BlockStack gap="300" inlineAlign="start">
+              <InlineStack gap="200" blockAlign="center">
+                <Icon source={CartIcon} tone="base" />
+                <Text as="h3" variant="headingMd">
+                  {t("cart.heading")}
+                </Text>
+                <Badge tone="info">{tc("new")}</Badge>
+              </InlineStack>
+              <Text as="p" tone="subdued">
+                {t("cart.body")}
+              </Text>
+              <Button url={themeLinks.cart} target="_blank" variant="primary">
+                {t("cart.add")}
+              </Button>
+            </BlockStack>
+          </InlineGrid>
         </Card>
 
         {/* Métricas detalhadas */}

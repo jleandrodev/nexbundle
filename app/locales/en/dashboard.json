@@ -42,6 +42,11 @@
     "addSection": "Add in its own section",
     "addInline": "Add next to the product"
   },
+  "cart": {
+    "heading": "Cart cross-sell",
+    "body": "Show matching products right on the cart page. The block gathers companions for every item in the cart, drops what's already added and suggests the rest — each with its own add button.",
+    "add": "Add block to cart"
+  },
   "metrics": {
     "emptyHeading": "Create your first component",
     "emptyBody": "Link a main product to products that go well together. Then add the “Buy Together” block on the product page from the theme editor.",

@@ -3,6 +3,7 @@
     "layout_a_name": "NexBundle — Side by side",
     "layout_b_name": "NexBundle — Compact",
     "layout_list_name": "NexBundle — List",
+    "layout_cart_name": "NexBundle — Cart cross-sell",
     "loading_label": "Loading text",
     "loading_info": "Shown while the suggestion loads. Leave empty to use the automatic translation."
   }

@@ -359,6 +359,45 @@
 .bt-root--compact .bt-actions { flex-direction: row; flex-wrap: wrap; }
 .bt-root--compact .bt-btn { width: auto; flex: 1 1 180px; }
 
+/* -------------------------------------------- layout: carrinho (cross-sell) */
+
+.bt-cart-title {
+  margin: 0 0 12px;
+  font-size: var(--bt-title-size, 18px);
+  font-weight: 600;
+  color: var(--bt-title, var(--bt-text));
+}
+.bt-cart-list { display: flex; flex-direction: column; gap: 12px; }
+.bt-cart-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid var(--bt-border);
+}
+.bt-cart-list .bt-cart-item:first-child { border-top: none; }
+.bt-cart-item__img {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.bt-cart-item__body { flex: 1 1 auto; min-width: 0; }
+.bt-cart-item__name {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--bt-text);
+}
+.bt-cart-item__price { font-size: 14px; font-weight: 600; color: var(--bt-text); }
+.bt-cart-item__options { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 8px; }
+.bt-cart-item__add { width: auto; flex: 0 0 auto; }
+
+@media (max-width: 480px) {
+  .bt-cart-item { flex-wrap: wrap; }
+  .bt-cart-item__add { width: 100%; }
+}
+
 /* ----------------------------------------------------- modal de variantes */
 /* Aberto ao clicar em "adicionar ao carrinho": o comprador escolhe a variante
    de cada produto selecionado antes de ir ao carrinho. Usado no preview (admin)

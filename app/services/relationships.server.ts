@@ -95,6 +95,75 @@ export async function resolveForProduct(
   return null;
 }
 
+export type CartSuggestion = {
+  productId: string;
+  variantId: string | null;
+  relationshipId: string;
+  discount: ReturnType<typeof normalizeDiscount>;
+};
+
+/**
+ * Sugestões de cross-sell para a PÁGINA DE CARRINHO: dado o conjunto de produtos que já
+ * estão no carrinho, junta os companheiros de TODOS eles (uni: main→companheiros;
+ * bi: companheiro→main), remove o que já está no carrinho e deduplica por produto.
+ * Cada sugestão carrega o relationshipId de origem: ao adicionar com a propriedade de
+ * linha _bt_bundle, a Shopify Function aplica o desconto do bundle no checkout.
+ * Retorna candidatos brutos (o route enriquece, filtra disponibilidade e limita).
+ */
+export async function resolveCartCompanions(
+  shop: string,
+  productIds: string[],
+): Promise<CartSuggestion[]> {
+  if (productIds.length === 0) return [];
+  const inCart = new Set(productIds);
+  const seen = new Set<string>();
+  const out: CartSuggestion[] = [];
+
+  // uni/bi: produtos do carrinho que são PRINCIPAIS → sugere os companheiros deles.
+  const asMain = await prisma.relationship.findMany({
+    where: { shop, enabled: true, mainProductId: { in: productIds } },
+    orderBy: { createdAt: "asc" },
+    include: { companions: { orderBy: { position: "asc" } } },
+  });
+  for (const rel of asMain) {
+    const discount = normalizeDiscount(rel.discountType, rel.discountValue);
+    for (const c of rel.companions) {
+      if (inCart.has(c.companionProductId) || seen.has(c.companionProductId)) continue;
+      seen.add(c.companionProductId);
+      out.push({
+        productId: c.companionProductId,
+        variantId: c.companionVariantId,
+        relationshipId: rel.id,
+        discount,
+      });
+    }
+  }
+
+  // bi: produtos do carrinho que são COMPANHEIROS de um relacionamento bidirecional
+  // → sugere o produto principal correspondente.
+  const asBi = await prisma.relationship.findMany({
+    where: {
+      shop,
+      enabled: true,
+      direction: "bi",
+      companions: { some: { companionProductId: { in: productIds } } },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  for (const rel of asBi) {
+    if (inCart.has(rel.mainProductId) || seen.has(rel.mainProductId)) continue;
+    seen.add(rel.mainProductId);
+    out.push({
+      productId: rel.mainProductId,
+      variantId: null,
+      relationshipId: rel.id,
+      discount: normalizeDiscount(rel.discountType, rel.discountValue),
+    });
+  }
+
+  return out;
+}
+
 export async function createRelationship(
   shop: string,
   data: {

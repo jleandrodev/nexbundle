@@ -565,10 +565,139 @@
     root.appendChild(summary(state, "footer"));
   }
 
+  /* ----------------------------------------------- carrinho (cross-sell) */
+
+  // Adiciona UMA sugestão do carrinho. Se ela forma bundle com um item do carrinho
+  // (relationshipId + desconto), marca a linha com _bt_bundle p/ a Function aplicar.
+  function addCartSuggestion(ctx, product, st, btn) {
+    var v = st.variant;
+    if (!v || !v.available) {
+      alert(i18n(ctx.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
+      return;
+    }
+    var line = { id: Number(v.id), quantity: 1 };
+    if (product.relationshipId && product.discount && product.discount.type !== "none") {
+      line.properties = {};
+      line.properties[BUNDLE_PROP] = product.relationshipId;
+    }
+    btn.disabled = true;
+    var root = cartRoot();
+    fetch(root + "cart/add.js", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ items: [line] }),
+    })
+      .then(function (r) {
+        if (!r.ok) {
+          return r.json().catch(function () { return {}; }).then(function (err) {
+            throw new Error((err && (err.description || err.message)) || ("cart/add " + r.status));
+          });
+        }
+        sendEvent({ type: "click", mainProductId: product.productId, companionProductId: product.productId, layout: "cart" });
+        // Recarrega a página de carrinho: reflete o item adicionado e recalcula as sugestões.
+        window.location.reload();
+      })
+      .catch(function (e) {
+        btn.disabled = false;
+        try { console.error("[buy-together] cart add falhou:", e); } catch (_) {}
+        alert(i18n(ctx.root, "add-error", "Não foi possível adicionar ao carrinho. Tente novamente."));
+      });
+  }
+
+  // Uma linha de sugestão: imagem + nome + preço + (seletor de variante) + botão adicionar.
+  function cartItemRow(ctx, product) {
+    var variant = variantById(product, product.variantId) || (product.variants || [])[0] || null;
+    var selected = {};
+    ((variant && variant.options) || []).forEach(function (o) { selected[o.name] = o.value; });
+    var st = { variant: variant };
+
+    var row = el("article", "bt-cart-item");
+    var img = el("img", "bt-cart-item__img", {
+      src: (variant && variant.image) || product.image || "",
+      alt: product.title || "",
+      loading: "lazy",
+    });
+    row.appendChild(img);
+
+    var body = el("div", "bt-cart-item__body");
+    body.appendChild(text("p", "bt-cart-item__name", product.title));
+    var priceEl = text("span", "bt-cart-item__price", formatMoney(variant ? variant.price : 0, ctx.moneyFormat));
+    body.appendChild(priceEl);
+
+    var names = product.optionNames || [];
+    if (names.length) {
+      var opts = el("div", "bt-cart-item__options");
+      names.forEach(function (name) {
+        var field = el("div", "bt-select");
+        var sel = el("select", "bt-select__input", { "aria-label": name });
+        optionValues(product, name).forEach(function (val) {
+          var opt = el("option");
+          opt.value = val;
+          opt.textContent = name + ": " + val;
+          if (selected[name] === val) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener("change", function () {
+          selected[name] = sel.value;
+          var v = matchVariant(product, selected, name);
+          if (v) {
+            st.variant = v;
+            (v.options || []).forEach(function (o) { selected[o.name] = o.value; });
+            priceEl.textContent = formatMoney(v.price, ctx.moneyFormat);
+            if (v.image) img.src = v.image;
+          }
+        });
+        field.appendChild(sel);
+        field.appendChild(icon("chevron", "bt-select__caret"));
+        opts.appendChild(field);
+      });
+      body.appendChild(opts);
+    }
+    row.appendChild(body);
+
+    var add = el("button", "bt-btn bt-btn--primary bt-cart-item__add", { type: "button" });
+    add.appendChild(icon("cart"));
+    add.appendChild(text("span", null, i18n(ctx.root, "add-cart", "Adicionar ao carrinho")));
+    add.addEventListener("click", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      addCartSuggestion(ctx, product, st, add);
+    });
+    row.appendChild(add);
+    return row;
+  }
+
+  function renderCart(root, suggestions) {
+    var ctx = { root: root, moneyFormat: root.getAttribute("data-bt-money-format") };
+    root.innerHTML = "";
+    root.appendChild(text("h3", "bt-cart-title", i18n(root, "cart-title", "Complete seu pedido")));
+    var list = el("div", "bt-cart-list");
+    suggestions.forEach(function (s) { list.appendChild(cartItemRow(ctx, s)); });
+    root.appendChild(list);
+  }
+
+  function initCartRoot(root) {
+    if (root.getAttribute("data-bt-ready") === "1") return;
+    root.setAttribute("data-bt-ready", "1");
+    var raw = root.getAttribute("data-bt-cart-products") || "";
+    var ids = raw.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!ids.length) { root.remove(); return; }
+
+    fetch(PROXY + "/cart?product_ids=" + encodeURIComponent(ids.join(",")), { headers: { Accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.enabled || !data.suggestions || !data.suggestions.length) { root.remove(); return; }
+        renderCart(root, data.suggestions);
+        root.removeAttribute("hidden");
+      })
+      .catch(function () { root.remove(); });
+  }
+
   /* ---------------------------------------------------------------- boot */
 
   function initRoot(root) {
     if (root.getAttribute("data-bt-ready") === "1") return;
+    // Modo carrinho: cross-sell dos itens do carrinho (fluxo próprio, sem produto único).
+    if (root.getAttribute("data-bt-mode") === "cart") { initCartRoot(root); return; }
     root.setAttribute("data-bt-ready", "1");
     var productId = root.getAttribute("data-bt-product-id");
     if (!productId) { root.remove(); return; }

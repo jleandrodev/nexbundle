@@ -4,6 +4,7 @@
   },
   "buy_together": {
     "loading": "Carregando sugestão...",
+    "cart_title": "Complete seu pedido",
     "total": "Total",
     "total_price": "Preço total",
     "total_two": "Total dos dois itens",

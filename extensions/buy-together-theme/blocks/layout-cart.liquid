@@ -1,0 +1,45 @@
+{% comment %}
+  Buy Together — Bloco de Carrinho ("Complete seu pedido")
+  Cross-sell na PÁGINA DE CARRINHO: junta os companheiros de TODOS os produtos do
+  carrinho, remove o que já está lá, deduplica e limita. Cada sugestão tem seu botão
+  de adicionar. Só renderiza se houver sugestão (senão o JS remove o bloco).
+  Arraste para uma section da página de carrinho que aceite app blocks.
+{% endcomment %}
+{%- capture bt_cart_products -%}
+  {%- for item in cart.items -%}{{ item.product_id }},{%- endfor -%}
+{%- endcapture -%}
+<div
+  class="bt-root bt-layout-cart"
+  data-bt-mode="cart"
+  data-bt-cart-products="{{ bt_cart_products | strip }}"
+  data-bt-money-format="{{ shop.money_format | escape }}"
+  data-bt-i18n-cart-title="{{ 'buy_together.cart_title' | t | escape }}"
+  data-bt-i18n-add-cart="{{ 'buy_together.add_to_cart' | t | escape }}"
+  data-bt-i18n-you-save="{{ 'buy_together.you_save' | t | escape }}"
+  hidden
+>
+  <div class="bt-skeleton" aria-hidden="true">
+    {%- if block.settings.loading_text != blank -%}
+      {{ block.settings.loading_text }}
+    {%- else -%}
+      {{ 'buy_together.loading' | t }}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:buy_together.layout_cart_name",
+  "target": "section",
+  "stylesheet": "buy-together.css",
+  "javascript": "buy-together.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "t:buy_together.loading_label",
+      "info": "t:buy_together.loading_info"
+    }
+  ]
+}
+{% endschema %}
