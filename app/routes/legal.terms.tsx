@@ -10,7 +10,7 @@
  *
  * TODO(owner): antes do lançamento, revise TODO o texto com um advogado e preencha
  * os placeholders: [RAZÃO SOCIAL], [CNPJ], [ENDEREÇO], [FORO] e confirme o e-mail
- * de contato (suporte@nexbundle.sprezzia.live). A data de "última atualização" é
+ * de contato (jls.mkt25@gmail.com). A data de "última atualização" é
  * editada à mão aqui em `lastUpdated` sempre que o texto mudar.
  */
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
@@ -21,7 +21,7 @@ import { normalizeLocale, type SupportedLng } from "../i18n/config";
 import { i18n } from "../i18n/i18next.server";
 
 // TODO(owner): confirmar este endereço de e-mail de suporte.
-const CONTACT_EMAIL = "suporte@nexbundle.sprezzia.live";
+const CONTACT_EMAIL = "jls.mkt25@gmail.com";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

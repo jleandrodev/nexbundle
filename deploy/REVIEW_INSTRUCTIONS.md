@@ -14,12 +14,13 @@ Texto pronto para colar no **Partner Dashboard → app → Distribution → App 
 - [ ] Pôr a loja do reviewer em `REVIEW_SHOPS` no `.env.production` e recarregar
       (`pm2 reload ecosystem.config.cjs --update-env`). Sem isso o reviewer para na tela
       de planos. Loja da review de 01/08/2026 ("Fabricator"): `ysghzc-g1.myshopify.com`.
-- [ ] 🔵 Criar o login de atendimento dedicado à review:
+- [x] Login de atendimento dedicado à review criado (`review@nexbundle.com`), já
+      preenchido na seção "Support back-office" abaixo. Recriado com:
       ```bash
       set -a; source .env.production; set +a
-      npm run staff:add -- review@n1.ag "Shopify Review" "<senha-forte>"
+      npm run staff:add -- review@nexbundle.com "Shopify Review" "<senha>"
       ```
-      e preencher e-mail/senha na seção "Support back-office" abaixo.
+      (o mesmo comando troca a senha de um e-mail existente).
 - [ ] A loja demo `nexbundle.myshopify.com` está com o app instalado, com pelo menos
       um componente Buy Together criado e o app block ativo na product page.
 - [ ] `npm run deploy` (VPS) e `shopify app deploy` (extensões + toml) rodados.
@@ -90,11 +91,11 @@ SUPPORT BACK-OFFICE (optional — not required to review the app)
 The same domain also hosts our internal support desk, used by our team to answer
 the in-app chat. It is not part of the merchant experience.
 URL: https://nexbundle.sprezzia.live/support
-Email: <PREENCHER>
-Password: <PREENCHER>
+Email: review@nexbundle.com
+Password: Pass-123
 
 CONTACT
-<PREENCHER e-mail de suporte>
+jls.mkt25@gmail.com
 ```
 
 ---

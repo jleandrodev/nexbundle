@@ -6,8 +6,7 @@ import { login } from "../../shopify.server";
 
 import styles from "./styles.module.css";
 
-// {/* TODO: confirmar e-mail/branding */}
-const SUPPORT_EMAIL = "suporte@nexbundle.sprezzia.live";
+const SUPPORT_EMAIL = "jls.mkt25@gmail.com";
 
 const SITE_URL = "https://nexbundle.sprezzia.live";
 const TITLE = "Frequently Bought Together for Shopify | NexBundle";
@@ -538,7 +537,6 @@ export default function Index() {
               </div>
               <div className={styles.footCol}>
                 <h4>Support</h4>
-                {/* TODO: confirmar e-mail/branding */}
                 <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
                 <span>In-app chat</span>
               </div>

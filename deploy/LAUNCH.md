@@ -51,7 +51,7 @@ As migrations novas (`add_shop_preference`, `support_ticket_reset`) são aplicad
 ## 3. Placeholders a preencher antes de submeter 🔴
 Trocar nos arquivos (procure por `TODO`/colchetes):
 - **Páginas legais** (`app/routes/legal.privacy.tsx`, `legal.terms.tsx`): `[RAZÃO SOCIAL]`, `[CNPJ]`, `[ENDEREÇO]`, `[DATA]` (última atualização) e o e-mail de contato.
-- **Landing / legais**: e-mail de suporte (placeholder `suporte@nexbundle.sprezzia.live`) — confirme o e-mail real e o MX do domínio.
+- **Landing / legais**: e-mail de suporte = `jls.mkt25@gmail.com` (confirmado 01/08/2026). Se um dia migrar para um endereço no domínio próprio, troque em `_index/route.tsx`, `legal.privacy.tsx`, `legal.terms.tsx` e nas docs de `deploy/`.
 - ⚖️ **Revisão jurídica**: as políticas são um MODELO. Peça a um advogado revisar Privacidade + Termos antes do lançamento público.
 
 ---

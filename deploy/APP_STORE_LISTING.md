@@ -105,7 +105,7 @@ da Shopify.
 ### 2.7 Support
 | Campo | Valor |
 |---|---|
-| 🔵 **Support email** | `suporte@nexbundle.sprezzia.live` — confirme que o MX está recebendo |
+| 🟢 **Support email** | `jls.mkt25@gmail.com` — mesmo endereço da LP e das páginas legais |
 | 🟢 **Support portal / chat** | O app tem chat de suporte embutido (ícone no painel) |
 | 🟢 **Privacy policy URL** | `https://nexbundle.sprezzia.live/legal/privacy` |
 | 🟢 **Terms of service URL** | `https://nexbundle.sprezzia.live/legal/terms` |
@@ -170,7 +170,7 @@ Nada aqui é obrigatório e nada disso afeta a análise.
 ## 7. Contact information
 | Campo | Valor |
 |---|---|
-| 🔵 **Merchant review email** | e-mail que recebe aviso de avaliação nova (ex.: `suporte@nexbundle.sprezzia.live`) |
+| 🟢 **Merchant review email** | `jls.mkt25@gmail.com` (recebe aviso de avaliação nova) |
 | 🔵 **App submission contact** | seu e-mail pessoal, que a Shopify usa para falar da análise (`jhonatan@n1.ag`) |
 | 🔵 **Emergency developer contact** | nome + e-mail + telefone com DDI (`+55 ...`) — a Shopify liga se o app quebrar em produção |
 
@@ -222,7 +222,7 @@ Demo store: [URL] (storefront password: [SENHA], if any)
    (customers/data_request, customers/redact, shop/redact) are HMAC-verified and shop/redact
    deletes all data for the shop. The app stores no customer personal data.
 
-Support: suporte@nexbundle.sprezzia.live · Privacy: /legal/privacy · Terms: /legal/terms
+Support: jls.mkt25@gmail.com · Privacy: /legal/privacy · Terms: /legal/terms
 ```
 
 ---
