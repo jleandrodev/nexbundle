@@ -3,7 +3,7 @@
  * Cada botão inicia a assinatura via billing.request → confirmação da Shopify.
  */
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, Form, useNavigation } from "@remix-run/react";
 import {
   Page,
@@ -20,6 +20,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { authenticate } from "../shopify.server";
 import { getEntitlement, billingIsTest } from "../services/billing.server";
+import { redirectKeepingContext } from "../utils/embedded-redirect.server";
 import {
   PLANS,
   TRIAL_DAYS,
@@ -41,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await request.formData();
   const plan = String(form.get("plan"));
   if (plan !== ESSENTIAL_PLAN && plan !== PRO_PLAN && plan !== ENTERPRISE_PLAN) {
-    return redirect("/app/plans");
+    return redirectKeepingContext(request, "/app/plans");
   }
   // Redireciona para a confirmação de cobrança da Shopify (com trial).
   return billing.request({ plan, isTest: billingIsTest });

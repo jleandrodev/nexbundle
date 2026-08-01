@@ -1,5 +1,5 @@
 import type { HeadersFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
@@ -9,6 +9,7 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
 import { getEntitlement } from "../services/billing.server";
+import { redirectKeepingContext } from "../utils/embedded-redirect.server";
 import SupportChat from "../components/SupportChat";
 import { resolveAdminLocale, serializeLocaleCookie } from "../i18n/resolve.server";
 import { polarisTranslations } from "../i18n/polaris.server";
@@ -22,9 +23,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const entitlement = await getEntitlement(ctx);
 
   // Loja real sem assinatura → manda escolher um plano (exceto já na própria página).
+  // O redirect PRECISA preservar shop/host/embedded: sem eles o document request
+  // seguinte perde a sessão e o admin acaba mostrando o OAuth dentro do iframe.
   const pathname = new URL(request.url).pathname;
   if (!entitlement.subscribed && !pathname.startsWith("/app/plans")) {
-    throw redirect("/app/plans");
+    throw redirectKeepingContext(request, "/app/plans");
   }
 
   const locale = await resolveAdminLocale(request, ctx.session.shop);

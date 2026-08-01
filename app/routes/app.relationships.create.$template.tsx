@@ -2,7 +2,7 @@
  * Editor de criação de um componente a partir do template escolhido na galeria.
  */
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import {
@@ -17,13 +17,15 @@ import { isUnlimited } from "../plans";
 import { isTemplateId, DEFAULT_STYLE, type TemplateId } from "../lib/templates";
 import { i18n } from "../i18n/i18next.server";
 import RelationshipEditor from "../components/RelationshipEditor";
+import { redirectKeepingContext } from "../utils/embedded-redirect.server";
 
 export const handle = { i18n: ["relationships", "templates", "common"] };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
   const template = params.template || "";
-  if (!isTemplateId(template)) throw redirect("/app/relationships/new");
+  if (!isTemplateId(template))
+    throw redirectKeepingContext(request, "/app/relationships/new");
   const currency = await getShopCurrency(admin);
   return json({ template: template as TemplateId, currency });
 }
@@ -60,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
     throw e;
   }
-  return redirect("/app/relationships");
+  return redirectKeepingContext(request, "/app/relationships");
 }
 
 export default function CreateRelationship() {

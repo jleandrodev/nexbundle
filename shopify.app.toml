@@ -20,7 +20,7 @@ subpath = "buy-together"
 prefix = "apps"
 
 [webhooks]
-api_version = "2026-10"
+api_version = "2026-07"
 
   [[webhooks.subscriptions]]
   uri = "/webhooks/app/uninstalled"

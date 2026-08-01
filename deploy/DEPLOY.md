@@ -93,6 +93,23 @@ em `https://nexbundle.sprezzia.live/support` (login próprio da equipe).
 > Anexos ficam em `UPLOAD_DIR` (persistente). Servidos só por rota autenticada
 > (lojista: mesma loja; equipe: cookie de staff). Inclua o `UPLOAD_DIR` no backup.
 
+## App Review (`REVIEW_SHOPS`)
+
+O reviewer da Shopify pode testar numa loja que **não** é development store. Nesse
+caso ela cairia no paywall (`/app/plans`) e a review trava. Libere a loja dele:
+
+```bash
+# .env.production — loja da review de 01/08/2026 ("Fabricator")
+REVIEW_SHOPS=ysghzc-g1.myshopify.com
+```
+
+```bash
+pm2 reload ecosystem.config.cjs --update-env   # a env só entra no reload
+```
+
+Confira em `deploy/REVIEW_INSTRUCTIONS.md` o texto de "Testing instructions" que vai
+no Partner Dashboard. **Esvazie `REVIEW_SHOPS` depois da aprovação.**
+
 ## Backup do SQLite (recomendado)
 ```bash
 # cron diário

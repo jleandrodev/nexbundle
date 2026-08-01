@@ -2,7 +2,7 @@
  * Editar / excluir um componente Buy Together (usa o editor com preview + abas).
  */
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import {
@@ -24,6 +24,7 @@ import {
   type TemplateId,
 } from "../lib/templates";
 import { i18n } from "../i18n/i18next.server";
+import { redirectKeepingContext } from "../utils/embedded-redirect.server";
 import RelationshipEditor, {
   type PickedProduct,
 } from "../components/RelationshipEditor";
@@ -95,7 +96,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await deleteRelationship(session.shop, params.id!);
     // Tira o bundle da config do desconto (a Function deixa de casar com ele).
     await syncBundleDiscountSafe(admin, session.shop);
-    return redirect("/app/relationships");
+    return redirectKeepingContext(request, "/app/relationships");
   }
 
   const parsed = parseRelationshipForm(form);
@@ -115,7 +116,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     throw e;
   }
-  return redirect("/app/relationships");
+  return redirectKeepingContext(request, "/app/relationships");
 }
 
 export default function EditRelationship() {

@@ -47,6 +47,19 @@ export async function isDevelopmentStore(admin: AdminGraphql): Promise<boolean> 
 /** Modo teste de cobrança: sempre fora de produção (dev stores nem chegam a cobrar). */
 export const billingIsTest = process.env.NODE_ENV !== "production";
 
+/**
+ * Lojas da App Review recebem acesso liberado (guideline 4.5.5: o reviewer
+ * precisa alcançar o conjunto completo de features). Se a loja de review não for
+ * development store, ela cairia no paywall e a review trava.
+ * Esvaziar a env depois da aprovação.
+ */
+function reviewShops(): string[] {
+  return (process.env.REVIEW_SHOPS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export type Entitlement = {
   plan: string | null; // "Essencial" | "Pro" | "dev-free" | null (sem assinatura)
   limit: number; // limite de produtos com Buy Together
@@ -58,7 +71,11 @@ type AuthAdmin = Awaited<ReturnType<typeof authenticate.admin>>;
 
 /** Direito de uso atual da loja. Usa os tipos reais do shopify-app-remix. */
 export async function getEntitlement(ctx: AuthAdmin): Promise<Entitlement> {
-  const { admin, billing } = ctx;
+  const { admin, billing, session } = ctx;
+
+  if (reviewShops().includes(session.shop.toLowerCase())) {
+    return { plan: "review-free", limit: DEV_FREE_LIMIT, isDev: true, subscribed: true };
+  }
 
   if (await isDevelopmentStore(admin)) {
     return { plan: "dev-free", limit: DEV_FREE_LIMIT, isDev: true, subscribed: true };
